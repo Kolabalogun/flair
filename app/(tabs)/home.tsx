@@ -118,6 +118,7 @@ export default function HomeScreen() {
       </SafeAreaView>
     );
   }
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList

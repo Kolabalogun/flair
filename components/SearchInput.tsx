@@ -36,9 +36,9 @@ const SearchInput = ({
             );
 
           if (type === "event") {
-            if (pathname.startsWith("/search-event"))
+            if (pathname.startsWith("/eventsearch"))
               router.setParams({ query });
-            else router.push(`/search-event/${query.trim()}`);
+            else router.push(`/eventsearch/${query.trim()}`);
           } else {
             if (pathname.startsWith("/search")) router.setParams({ query });
             else router.push(`/search/${query.trim()}`);

@@ -22,6 +22,8 @@ export const config = {
   newsCollectionId: "665f0eaf002eb8653dac",
   commentsCollectionId: "6660235e002445f534a4",
   eventsCollectionId: "66610230000e4247233f",
+  eventcommentsCollectionId: "66618576002aa6d75458",
+  eventTicketCollectionId: "666195eb00332848e84f",
   storageId: "665f1b8c00331df6f9e0",
 };
 
@@ -92,6 +94,21 @@ export async function signIn(email: string, password: string) {
     return session;
   } catch (error: any) {
     console.log(error);
+    throw new Error(error);
+  }
+}
+
+// Get  posts created by user
+export async function checkIfUserIsInDB(email: string) {
+  try {
+    const posts = await database.listDocuments(
+      config.databaseId,
+      config.userCollectionId,
+      [Query.equal("email", email)]
+    );
+
+    return posts.documents;
+  } catch (error: any) {
     throw new Error(error);
   }
 }
@@ -211,6 +228,30 @@ export async function searchEvents(query: string) {
     throw new Error(error.message);
   }
 }
+
+// Get  event that matches search query
+export async function searchTicket(
+  query: string | null,
+  userId?: string | null
+) {
+  if (query) {
+    try {
+      const events = await database.listDocuments(
+        config.databaseId,
+        config.eventTicketCollectionId,
+        userId
+          ? [Query.search("postId", query), Query.search("userId", userId)]
+          : [Query.search("postId", query)]
+      );
+
+      if (!events) throw new Error("Something went wrong");
+
+      return events.documents;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+}
 // Sign Out
 export async function signOut() {
   try {
@@ -223,11 +264,11 @@ export async function signOut() {
 }
 
 // Get  posts created by user
-export async function getUserPosts(userId: string) {
+export async function getUserPosts(userId: string, type?: string) {
   try {
     const posts = await database.listDocuments(
       config.databaseId,
-      config.newsCollectionId,
+      type === "event" ? config.eventsCollectionId : config.newsCollectionId,
       [Query.equal("creator", userId)]
     );
 
@@ -355,14 +396,16 @@ export async function createEventPost(form: CreateNewsEventFormType) {
 
 // Update Post
 export async function updateVideoPost(form: any) {
+  console.log(form);
+
   try {
+    const { collectionId, ...updatedForm } = form;
+
     const newPost = await database.updateDocument(
       config.databaseId,
-      form.collectionId,
+      collectionId,
       form.documentId,
-      {
-        ...form,
-      }
+      updatedForm
     );
 
     return newPost;
@@ -372,17 +415,30 @@ export async function updateVideoPost(form: any) {
 }
 
 // Create Comment Post
-export async function createCommentPost(form: any) {
+export async function createCommentPost(form: any, event?: string) {
   try {
+    // Determine the collection ID based on the event flag
+    const collectionId =
+      event === "event"
+        ? config.eventcommentsCollectionId
+        : event === "ticket"
+        ? config.eventTicketCollectionId
+        : config.commentsCollectionId;
+
+    // Create the document data based on whether it is an event or news comment
+    const data =
+      event === "event"
+        ? { event_id: form.event_id, desc: form.comment, creator: form.creator }
+        : event === "ticket"
+        ? { ...form }
+        : { news_id: form.news_id, desc: form.comment, creator: form.creator };
+
+    // Create the new post in the database
     const newPost = await database.createDocument(
       config.databaseId,
-      config.commentsCollectionId,
+      collectionId,
       ID.unique(),
-      {
-        news_id: form.news_id,
-        desc: form.comment,
-        creator: form.creator,
-      }
+      data
     );
 
     return newPost;
@@ -391,13 +447,15 @@ export async function createCommentPost(form: any) {
   }
 }
 
-export async function getAllComments(id: string | null) {
+export async function getAllComments(id: string | null, event?: boolean) {
   if (id) {
     try {
       const comments = await database.listDocuments(
         config.databaseId,
-        config.commentsCollectionId,
-        [Query.orderDesc("$createdAt"), Query.equal("news_id", id)]
+        event ? config.eventcommentsCollectionId : config.commentsCollectionId,
+        event
+          ? [Query.orderDesc("$createdAt"), Query.equal("event_id", id)]
+          : [Query.orderDesc("$createdAt"), Query.equal("news_id", id)]
       );
 
       return comments.documents;

@@ -20,6 +20,7 @@ type FormFieldType = TextInputProps & {
   otherStyles?: string;
   commentLoader?: boolean;
   commentfn?: () => void;
+  type?: boolean;
 };
 const FormField = ({
   title,
@@ -30,6 +31,7 @@ const FormField = ({
   otherStyles,
   commentLoader,
   commentfn,
+  type,
   ...props
 }: FormFieldType) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +45,11 @@ const FormField = ({
         <Text className="text-xs text-gray-100   font-pregular">{span}</Text>
       )}
 
-      <View className="w-full h-16 px-4 bg-black-100 rounded-2xl border-2 border-black-200 focus:border-secondary flex flex-row justify-center items-center">
+      <View
+        className={`w-full h-16 px-4 bg-black-100 rounded-2xl border-2 border-black-200 ${
+          type ? "focus:border-[#511bb7] " : "focus:border-secondary"
+        } flex flex-row justify-center items-center`}
+      >
         {title === "Entry Fee" && (
           <View>
             <Image
@@ -85,9 +91,13 @@ const FormField = ({
             }
           >
             {commentLoader ? (
-              <ActivityIndicator color={"#FF9C01"} />
+              <ActivityIndicator color={type ? "#511bb7" : "#FF9C01"} />
             ) : (
-              <MaterialCommunityIcons name="send" size={24} color="#FF9C01" />
+              <MaterialCommunityIcons
+                name="send"
+                size={24}
+                color={type ? "#511bb7" : "#FF9C01"}
+              />
             )}
           </TouchableOpacity>
         )}

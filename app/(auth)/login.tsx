@@ -12,7 +12,7 @@ import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import { images } from "@/constants";
 import { Link, router } from "expo-router";
-import { getCurrentUser, signIn } from "@/lib/appwrite";
+import { checkIfUserIsInDB, getCurrentUser, signIn } from "@/lib/appwrite";
 import { useGlobalContext } from "@/context/GlobalProvider";
 
 const Login = () => {
@@ -36,6 +36,10 @@ const Login = () => {
     setSubmitting(true);
 
     try {
+      const res = await checkIfUserIsInDB(email.trim());
+
+      if (res.length === 0) return Alert.alert("Error", "Invalid Credentials");
+
       await signIn(email.trim(), password.trim());
 
       const result = await getCurrentUser();
@@ -46,7 +50,7 @@ const Login = () => {
       router.replace("/home");
     } catch (error: any) {
       console.log(error);
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", "Invalid Credentials");
     } finally {
       setSubmitting(false);
     }

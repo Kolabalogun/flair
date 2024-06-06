@@ -20,6 +20,7 @@ export type CreateNewsFormType = {
 };
 
 export type CreateNewsEventFormType = {
+  $id: any;
   title: string;
   image: ImagePicker.ImagePickerAsset | null;
   author: string;
@@ -45,13 +46,14 @@ const initialState = {
 };
 
 const eventInitialState = {
+  $id: "",
   title: "",
   image: null,
   author: "",
   location: "",
   date: new Date(),
   time: new Date(),
-  seat: "100",
+  seat: "0",
   entryFee: "0",
   desc: "",
   creator: "",
@@ -136,8 +138,7 @@ const Create = () => {
       !eventForm.image ||
       !eventForm.desc ||
       !eventForm.location ||
-      !eventForm.entryFee ||
-      !eventForm.seat
+      !eventForm.entryFee
     ) {
       return Alert.alert("Error", "Please provide all fields");
     }

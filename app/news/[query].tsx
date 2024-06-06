@@ -18,6 +18,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import useAppwrite from "../../lib/useAppwrite";
 import {
+  config,
   createCommentPost,
   deletePost,
   getAllComments,
@@ -139,6 +140,7 @@ const NewsDetails = () => {
 
       const updatedForm = {
         documentId: posts[0]?.$id,
+        collectionId: config.newsCollectionId,
         likes: updateLikes,
       };
 
@@ -159,7 +161,7 @@ const NewsDetails = () => {
       });
       if (type === "post") {
         Alert.alert("Flair", "Post deleted successfully");
-        router.replace("/home");
+        router.back();
         refetch();
       } else {
         Alert.alert("Flair", "Comment deleted successfully");
@@ -176,8 +178,8 @@ const NewsDetails = () => {
         <View>
           <Header
             title={posts[0]?.type}
-            fn={() => router.dismiss(1)}
-            img={icons.al}
+            fn={() => router.back()}
+            img={icons.all}
             img2={images.logoSmall}
           />
         </View>
@@ -194,8 +196,8 @@ const NewsDetails = () => {
       <View>
         <Header
           title={posts[0]?.type}
-          fn={() => router.dismiss(1)}
-          img={icons.al}
+          fn={() => router.back()}
+          img={icons.all}
           img2={images.logoSmall}
         />
       </View>

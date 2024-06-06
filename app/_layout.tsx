@@ -41,6 +41,10 @@ export default function RootLayout() {
         <Stack.Screen name="news/[query]" options={{ headerShown: false }} />
         <Stack.Screen name="event/[query]" options={{ headerShown: false }} />
         <Stack.Screen name="search/[query]" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="eventsearch/[query]"
+          options={{ headerShown: false }}
+        />
 
         <Stack.Screen name="+not-found" />
       </Stack>

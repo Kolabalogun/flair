@@ -28,10 +28,26 @@ const Register = () => {
 
   const { email, password, username } = form;
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   const submit = async () => {
     if (!email || !username || !password) {
       Alert.alert("Error", "Please fill in all required fields");
 
+      return;
+    }
+
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert("Error", "Please enter a valid email address");
+      return;
+    }
+
+    if (username.length < 3) {
+      Alert.alert("Error", "Username must be more than 2 characters");
+      return;
+    }
+    if (username.length > 10) {
+      Alert.alert("Error", "Username must be more than 10 characters");
       return;
     }
 
@@ -57,7 +73,7 @@ const Register = () => {
       router.replace("/home");
     } catch (error: any) {
       console.log(error);
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", "Error trying to sign up. Please try again");
     } finally {
       setSubmitting(false);
     }

@@ -6,7 +6,7 @@ type CustomButtonType = {
   containerStyles?: string;
   textStyles?: string;
   isLoading?: boolean;
-  event?: string;
+  event?: string | null;
 };
 
 const CustomButton = ({

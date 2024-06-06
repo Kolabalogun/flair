@@ -5,6 +5,8 @@ import { router } from "expo-router";
 import { formatDate } from "@/utils/formatDate";
 
 const EventCard = ({ item }: any) => {
+  console.log(item?.documentId, "documentId");
+
   return (
     <View>
       <TouchableOpacity

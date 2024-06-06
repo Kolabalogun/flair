@@ -11,7 +11,7 @@ const EmptyState = ({
 }: {
   title: string;
   subtitle: string;
-  event?: string;
+  event?: string | null;
 }) => {
   return (
     <View className="flex justify-center items-center px-4">

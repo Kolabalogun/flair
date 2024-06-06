@@ -1,12 +1,5 @@
-import {
-  FlatList,
-  Image,
-  ImageBackground,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { timeAgo } from "@/utils/timeAgo";
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
+
 import { router } from "expo-router";
 import { CreateNewsEventFormType } from "@/app/(tabs)/create";
 import { formatDate } from "@/utils/formatDate";
@@ -38,8 +31,8 @@ const UpcomingEventItem = ({ item }: { item: any }) => {
               </Text>
             </View>
 
-            <View className="mt-2    w-full flex-row  justify-between  items-center">
-              <Text className="text-gray-100 uppercase font-psemibold text-xs">
+            <View className="mt-2    w-full   justify-between   ">
+              <Text className="text-gray-100 mb-1 uppercase font-psemibold text-xs">
                 {item?.location}
               </Text>
               <Text className="text-secondary-100 font-psemibold text-xs">
@@ -58,7 +51,7 @@ const UpcomingEvent = ({ events }: { events: CreateNewsEventFormType[] }) => {
     <FlatList
       data={events}
       horizontal
-      keyExtractor={(idx) => idx.toLocaleString()}
+      keyExtractor={(item) => item?.$id?.toLocaleString()}
       renderItem={({ item }) => <UpcomingEventItem item={item} />}
     />
   );

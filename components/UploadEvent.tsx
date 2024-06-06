@@ -156,14 +156,14 @@ const UploadEvent = ({
         otherStyles="mt-10"
       />
 
-      <FormField
+      {/* <FormField
         title="Reservation"
         value={eventForm.seat}
         placeholder="How many seats available?"
         handleChangeText={(e) => setEventForm({ ...eventForm, seat: e })}
         otherStyles="mt-10"
         keyboardType="number-pad"
-      />
+      /> */}
 
       <FormField
         title="Entry Fee"
@@ -225,6 +225,8 @@ const UploadEvent = ({
             <Picker.Item label="Accessible Venue" value="Accessible Venue" />
             <Picker.Item label="Covid19 Protocol" value="Covid19 Protocol" />
             <Picker.Item label="Free Entry" value="Free Entry" />
+            <Picker.Item label="Paid Entry" value="Paid Entry" />
+            <Picker.Item label="Online Meeting" value="Online Meeting" />
             <Picker.Item label="Outdoor" value="Outdoor" />
             <Picker.Item label="No Smoking" value="No Smoking" />
             <Picker.Item

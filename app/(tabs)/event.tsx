@@ -11,6 +11,7 @@ import {
   FlatList,
   Image,
   RefreshControl,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -20,17 +21,23 @@ import UpcomingEvent from "@/components/UpcomingEvent";
 import EventCard from "@/components/EventCard";
 import { formatDate } from "@/utils/formatDate";
 import { icons } from "@/constants";
+import { CreateNewsEventFormType } from "./create";
 
 export default function Event() {
   const { user } = useGlobalContext();
 
-  const { data: events, refetch } = useAppwrite(getAllEvents);
+  const { data: events, refetch, loading } = useAppwrite(getAllEvents);
 
   const eventss =
     events.length > 0
       ? [events[0], ...events.slice(5, events.length), ...events.slice(1, 4)]
       : [];
-  console.log(events);
+
+  const trendingEvent =
+    events?.filter((event: CreateNewsEventFormType) => event.trending).length >
+    0
+      ? events?.filter((event: CreateNewsEventFormType) => event.trending)
+      : events;
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -39,6 +46,35 @@ export default function Event() {
     await refetch();
     setRefreshing(false);
   };
+  if (loading) {
+    return (
+      <SafeAreaView className="bg-primary flex-1 ">
+        <View className="flex my-6 px-4 space-y-6">
+          <View className="flex justify-between items-start flex-row mb-6">
+            <View>
+              <Text className="text-2xl font-psemibold pb-1 text-white capitalize">
+                Hello {user?.username} 👋
+              </Text>
+              <Text className="font-pmedium text-sm text-gray-100">
+                Let's find a good event
+              </Text>
+            </View>
+
+            <View className="w-10 h-10 border border-[#6834ce] rounded-lg flex justify-center items-center">
+              <Image
+                source={{ uri: user?.avatar }}
+                className="w-[90%] h-[90%] rounded-lg"
+                resizeMode="cover"
+              />
+            </View>
+          </View>
+        </View>
+        <View className="h-[65vh] items-center justify-center">
+          <ActivityIndicator color={"#6834ce"} size="large" />
+        </View>
+      </SafeAreaView>
+    );
+  }
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
@@ -73,12 +109,12 @@ export default function Event() {
                 <TouchableOpacity
                   className="relative flex justify-between  mr-5 bg-[#121212]   w-full pb-1   overflow-hidden rounded-2xl border-2    border-[#511bb7]"
                   activeOpacity={0.7}
-                  onPress={() => router.push(`/event/${events[0]?.$id}`)}
+                  onPress={() => router.push(`/event/${trendingEvent[0]?.$id}`)}
                 >
                   <View className=" ">
                     <Image
                       source={{
-                        uri: events[0]?.image,
+                        uri: trendingEvent[0]?.image,
                       }}
                       className=" w-full h-40 rounded-t-xl mb-5 overflow-hidden shadow-lg shadow-black/40"
                       resizeMode="cover"
@@ -90,19 +126,19 @@ export default function Event() {
                             className="text-white font-psemibold text-base"
                             numberOfLines={3}
                           >
-                            {events[0]?.title}
+                            {trendingEvent[0]?.title}
                           </Text>
                         </View>
 
                         <View className="my-2   flex-row space-x-3  items-center">
                           <Text className="text-gray-100 uppercase font-psemibold text-xs">
-                            {events[0]?.location}
+                            {trendingEvent[0]?.location}
                           </Text>
                           <Text className="text-gray-100 uppercase font-psemibold text-xs">
                             :
                           </Text>
                           <Text className="text-secondary-100 font-psemibold text-xs">
-                            {formatDate(events[0]?.date)}
+                            {formatDate(trendingEvent[0]?.date)}
                           </Text>
                         </View>
                       </View>
@@ -125,7 +161,7 @@ export default function Event() {
                   Upcoming Event
                 </Text>
 
-                <UpcomingEvent events={events.slice(1, 5) ?? []} />
+                <UpcomingEvent events={events.slice(0, 5) ?? []} />
               </View>
             )}
 
