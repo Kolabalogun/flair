@@ -35,6 +35,7 @@ import { formatDate, formatTime } from "@/utils/formatDate";
 import CustomButton from "@/components/CustomButton";
 import ModalComponent from "@/components/Modal";
 import FormField from "@/components/FormField";
+import { Linking } from "react-native";
 
 export interface Comment {
   $id: string;
@@ -256,6 +257,17 @@ const EventDetails = () => {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleContactAdmin = async () => {
+    const url = "https://wa.me/2347045074494";
+    const supported = await Linking.canOpenURL(url);
+
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert(`Don't know how to open this URL: ${url}`);
     }
   };
 
@@ -482,7 +494,7 @@ const EventDetails = () => {
               </Text>
             </View>
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleContactAdmin}>
               <Ionicons
                 name="chatbox-ellipses-outline"
                 size={24}

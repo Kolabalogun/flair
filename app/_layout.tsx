@@ -2,8 +2,8 @@ import { GlobalProvider } from "@/context/GlobalProvider";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
-
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import "react-native-reanimated";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -22,15 +22,40 @@ export default function RootLayout() {
     "Poppins-Thin": require("../assets/fonts/Poppins-Thin.ttf"),
   });
 
+  // const [isSignedIn, setIsSignedIn] = useState(true);
+
+  // const [loading, setLoading] = useState(false);
+
+  // // Function to get user data from AsyncStorage
+  // const getData = async () => {
+  //   setLoading(loading);
+  //   try {
+  //     const value = await AsyncStorage.getItem("@IsUserSignedIn");
+  //     if (value ) {
+  //       setIsSignedIn(true);
+  //     } else {
+  //       setIsSignedIn(false);
+  //     }
+  //   } catch (e) {
+  //     console.log(e);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   getData();
+  // }, []);
+
+  // // console.log(isSignedIn);
+
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  if (!loaded) return null;
 
   return (
     <GlobalProvider>
@@ -40,6 +65,7 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="index" />
+        <Stack.Screen name="landingPage" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="news/[query]" />

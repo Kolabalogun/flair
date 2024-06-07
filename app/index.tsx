@@ -1,17 +1,11 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  StatusBar,
-  Platform,
-} from "react-native";
+import { View, Text, Platform } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { Redirect, router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { images } from "@/constants";
-import CustomButton from "@/components/CustomButton";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Redirect, router } from "expo-router";
+import { SafeAreaView } from "react-native";
+import { ActivityIndicator } from "react-native";
+
 import * as Notifications from "expo-notifications";
 
 import * as Device from "expo-device";
@@ -25,13 +19,15 @@ Notifications.setNotificationHandler({
 });
 
 const Home = () => {
+  const { isLoggedIn, isLoading, setExpoPushToken, expoPushToken, setUser } =
+    useGlobalContext();
+
+  const [loading, setLoading] = useState<boolean>(true);
+
   const [notification, setNotification] =
     useState<Notifications.Notification | null>(null);
   const notificationListener = useRef<Notifications.Subscription | null>(null);
   const responseListener = useRef<Notifications.Subscription | null>(null);
-
-  const { isLoggedIn, isLoading, expoPushToken, setExpoPushToken } =
-    useGlobalContext();
 
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) =>
@@ -93,49 +89,58 @@ const Home = () => {
     return token;
   }
 
-  if (!isLoading && isLoggedIn) return <Redirect href={"/home"} />;
+  const [isSignedIn, setIsSignedIn] = useState<any>(null);
+
+  // Function to get user data from AsyncStorage
+  const getData = async () => {
+    setLoading(true);
+    try {
+      const value = await AsyncStorage.getItem("@IsUserSignedInn");
+
+      if (value) {
+        setIsSignedIn(true);
+        setUser(JSON.parse(value as string));
+      } else {
+        setIsSignedIn(false);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  if (loading)
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-primary h-full">
+        <ActivityIndicator size={"large"} color={"#FF9C01"} />
+
+        <Text className="mt-5 text-white">{expoPushToken} </Text>
+      </SafeAreaView>
+    );
+
+  if (isSignedIn) return <Redirect href={"/home"} />;
+
+  if (!isSignedIn) return <Redirect href={"/landingPage"} />;
+
+  if (loading)
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-primary h-full">
+        <ActivityIndicator size={"large"} color={"#FF9C01"} />
+
+        <Text className="mt-5 text-white">{expoPushToken} </Text>
+      </SafeAreaView>
+    );
 
   return (
-    <SafeAreaView className="flex-1 bg-primary h-full">
-      <ScrollView contentContainerStyle={{ height: "100%" }}>
-        <View className={"w-full justify-center items-center h-full px-4 "}>
-          <Image
-            source={images.logo}
-            className="w-[130px] h-[84px] "
-            resizeMode="contain"
-          />
+    <SafeAreaView className="flex-1 items-center justify-center bg-primary h-full">
+      <ActivityIndicator size={"large"} color={"#FF9C01"} />
 
-          <Image
-            source={images.cards}
-            className="max-w-[380px] w-full h-[298px]"
-            resizeMode="contain"
-          />
-
-          <View className="relative mt-5">
-            <Text className="text-3xl text-white font-bold text-center">
-              Explore Boundless{"\n"}
-              Horizons with <Text className="text-secondary-200">Flair</Text>
-            </Text>
-
-            <Image
-              source={images.path}
-              className="w-[136px] h-[15px] absolute -bottom-2 -right-8"
-              resizeMode="contain"
-            />
-          </View>
-
-          <Text className="text-sm font-pregular text-gray-100 mt-7 text-center">
-            Discover News & Events: A Journey of Endless Exploration with Flair!
-          </Text>
-
-          <CustomButton
-            title="Continue with Email"
-            handlePress={() => router.push("/login")}
-            containerStyles="w-full mt-7"
-          />
-        </View>
-      </ScrollView>
-      <StatusBar backgroundColor="#161622" barStyle="light-content" />
+      <Text className="mt-5 text-white">{expoPushToken} </Text>
     </SafeAreaView>
   );
 };

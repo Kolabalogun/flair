@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/spla.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#161622"
     },
     "ios": {
       "supportsTablet": true,
@@ -21,12 +21,12 @@
       }
     },
     "android": {
-      "permissions": ["RECEIVE_BOOT_COMPLETED"],
+      "permissions": ["RECEIVE_BOOT_COMPLETED", "NOTIFICATIONS"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adap-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#161622"
       },
-      "package": "com.ibrahim.flair"
+      "package": "com.ibrahimdevv.flair"
     },
     "web": {
       "bundler": "metro",
@@ -39,7 +39,7 @@
         "expo-notifications",
         {
           "icon": "./assets/images/iconn.png",
-          "color": "#ffffff"
+          "color": "#161622"
         }
       ]
     ],

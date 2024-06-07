@@ -26,7 +26,7 @@ const CommentCard = ({
             } flex justify-center items-center p-0.5`}
           >
             <Image
-              source={{ uri: creator.avatar }}
+              source={{ uri: creator?.avatar }}
               className="w-full h-full rounded-lg"
               resizeMode="cover"
             />
@@ -39,7 +39,7 @@ const CommentCard = ({
                     className="font-psemibold text-sm text-white"
                     numberOfLines={1}
                   >
-                    {creator.username}
+                    {creator?.username}
                   </Text>
                   {creator?.role === "admin" ? (
                     <MaterialIcons name="verified" size={14} color="#6834ce" />

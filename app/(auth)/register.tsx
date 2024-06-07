@@ -17,7 +17,8 @@ import { createUser } from "@/lib/appwrite";
 import { useGlobalContext } from "@/context/GlobalProvider";
 
 const Register = () => {
-  const { setUser, setIsLoggedIn, expoPushToken } = useGlobalContext();
+  const { setUser, setIsLoggedIn, expoPushToken, storeData } =
+    useGlobalContext();
 
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -68,6 +69,8 @@ const Register = () => {
 
       setIsLoggedIn(true);
       setUser(result);
+
+      storeData(JSON.stringify(result));
 
       Alert.alert("Success", "User signed in successfully");
 

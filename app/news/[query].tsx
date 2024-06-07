@@ -35,6 +35,7 @@ import CommentCard from "@/components/CommentCard";
 import FormField from "@/components/FormField";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { sendPushNotification } from "@/lib/notification";
+import { Linking } from "react-native";
 
 export interface Comment {
   $id: string;
@@ -91,6 +92,17 @@ const NewsDetails = () => {
   useEffect(() => {
     refetch();
   }, [query]);
+
+  const handleContactAdmin = async () => {
+    const url = "https://wa.me/2347045074494";
+    const supported = await Linking.canOpenURL(url);
+
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert(`Don't know how to open this URL: ${url}`);
+    }
+  };
 
   const submitComment = async () => {
     if (!comment) {
@@ -336,7 +348,7 @@ const NewsDetails = () => {
               </Text>
             </View>
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleContactAdmin}>
               <Ionicons
                 name="chatbox-ellipses-outline"
                 size={24}

@@ -1,5 +1,6 @@
 import { getAllUsers, getCurrentUser } from "@/lib/appwrite";
 import useAppwrite from "@/lib/useAppwrite";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
   createContext,
   useContext,
@@ -21,6 +22,7 @@ interface GlobalContextType {
 
   updateUser: boolean;
   setUpdateUser: React.Dispatch<React.SetStateAction<boolean>>;
+  storeData: (e: string) => void;
 }
 
 // Create the context with an undefined default value
@@ -71,6 +73,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         if (user) {
           setIsLoggedIn(true);
           setUser(user);
+          storeData(JSON.stringify(user));
         } else {
           setIsLoggedIn(false);
           setUser(null);
@@ -83,6 +86,18 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         setIsLoading(false);
       });
   }, [updateUser]);
+
+  const storeData = async (value: string | null) => {
+    try {
+      if (value === null) {
+        await AsyncStorage.removeItem("@IsUserSignedInn");
+      } else {
+        await AsyncStorage.setItem("@IsUserSignedInn", value);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   return (
     <GlobalContext.Provider
@@ -97,6 +112,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         allexpoPushToken,
         updateUser,
         setUpdateUser,
+        storeData,
       }}
     >
       {children}

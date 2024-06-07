@@ -25,7 +25,7 @@ import { RefreshControl } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 const Profile = () => {
-  const { user, setUser, setIsLoggedIn } = useGlobalContext();
+  const { user, setUser, setIsLoggedIn, storeData } = useGlobalContext();
 
   const {
     data: posts,
@@ -54,12 +54,18 @@ const Profile = () => {
 
   const logout = async () => {
     setLoading(true);
-    await signOut();
-    setUser(null);
-    setIsLoggedIn(false);
-    setLoading(false);
-    Alert.alert("Flair", "User logged out successfully");
-    router.replace("/login");
+    try {
+      await signOut();
+      setUser(null);
+      setIsLoggedIn(false);
+      storeData(null);
+      Alert.alert("Flair", "User logged out successfully");
+      router.replace("/login");
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (ploading || eloading) {

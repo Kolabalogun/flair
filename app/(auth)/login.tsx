@@ -16,7 +16,7 @@ import { checkIfUserIsInDB, getCurrentUser, signIn } from "@/lib/appwrite";
 import { useGlobalContext } from "@/context/GlobalProvider";
 
 const Login = () => {
-  const { setUser, setIsLoggedIn } = useGlobalContext();
+  const { setUser, setIsLoggedIn, storeData } = useGlobalContext();
 
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -45,6 +45,8 @@ const Login = () => {
       const result = await getCurrentUser();
 
       setIsLoggedIn(true);
+      storeData(JSON.stringify(result));
+
       setUser(result);
 
       router.replace("/home");
