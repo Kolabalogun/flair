@@ -12,6 +12,7 @@ const CommentCard = ({
   deleteDoc,
   itm,
   type,
+  bookticket,
 }: any) => {
   const { user } = useGlobalContext();
 
@@ -33,18 +34,37 @@ const CommentCard = ({
           <View className="flex-1   ">
             <View className="flex mt-1 justify-center items-center flex-row flex-1">
               <View className="flex justify-center flex-1 ml-3 gap-y-1">
-                <Text
-                  className="font-psemibold text-sm text-white"
-                  numberOfLines={1}
-                >
-                  {creator.username}
-                </Text>
+                <View className="items-center flex-row gap-x-1">
+                  <Text
+                    className="font-psemibold text-sm text-white"
+                    numberOfLines={1}
+                  >
+                    {creator.username}
+                  </Text>
+                  {creator?.role === "admin" ? (
+                    <MaterialIcons name="verified" size={14} color="#6834ce" />
+                  ) : creator?.role === "verified" ? (
+                    <MaterialIcons name="verified" size={14} color="#FF9C01" />
+                  ) : (
+                    <></>
+                  )}
+                </View>
+
                 <Text
                   className="text-xs text-gray-100 font-pregular"
                   numberOfLines={1}
                 >
                   {timeAgo($createdAt)}
                 </Text>
+
+                {bookticket === "seats" && (
+                  <Text
+                    className="text-xs text-gray-100 font-pregular"
+                    numberOfLines={1}
+                  >
+                    ID: {creator?.$id}
+                  </Text>
+                )}
               </View>
               {creator?.$id === user?.$id && (
                 <TouchableOpacity

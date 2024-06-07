@@ -5,8 +5,9 @@ const useAppwrite = (fn: () => void, id?: string | null) => {
   const [data, setData] = useState<any>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (data?: string) => {
+    data !== "dontshow" && setLoading(true);
+
     try {
       const res = await fn();
       setData(res);
@@ -21,7 +22,7 @@ const useAppwrite = (fn: () => void, id?: string | null) => {
     fetchData();
   }, [id]);
 
-  const refetch = () => fetchData();
+  const refetch = (data?: string) => fetchData(data);
 
   return { data, loading, refetch };
 };

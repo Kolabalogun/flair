@@ -252,6 +252,24 @@ export async function searchTicket(
     }
   }
 }
+
+// Get all trending posts
+export async function searchTrendingPosts() {
+  try {
+    const posts = await database.listDocuments(
+      config.databaseId,
+      config.eventsCollectionId,
+      [Query.equal("trending", true)]
+    );
+
+    if (!posts) throw new Error("Something went wrong");
+
+    return posts.documents;
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+}
+
 // Sign Out
 export async function signOut() {
   try {

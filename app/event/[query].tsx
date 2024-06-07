@@ -14,6 +14,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   TextInput,
+  Switch,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -25,13 +26,14 @@ import {
   getAllComments,
   searchEvents,
   searchTicket,
+  searchTrendingPosts,
   updateVideoPost,
 } from "../../lib/appwrite";
 
 import Header from "@/components/Header";
 import { icons, images } from "@/constants";
 
-import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { formatDate, formatTime } from "@/utils/formatDate";
@@ -56,8 +58,6 @@ const EventDetails = () => {
   const { user } = useGlobalContext();
   const [modalVisible, setModalVisible] = useState(false);
 
-  console.log(user?.$id, "user?.$id");
-
   const [commentLoader, setCommentLoader] = useState(false);
 
   const [btModalVisible, setBTModalVisible] = useState(false);
@@ -79,13 +79,17 @@ const EventDetails = () => {
 
   const [postId, setPostId] = useState(null);
 
-  console.log(posts[0]);
-
   const {
     data: comments,
     refetch: commentRefetch,
     loading: loadingComments,
   } = useAppwrite(() => getAllComments(postId, true), postId);
+
+  const {
+    data: allTrendingPosts,
+    loading: allTrendingPostLoading,
+    refetch: allTrendingPostRefetch,
+  } = useAppwrite(() => searchTrendingPosts());
 
   const {
     data: allTickets,
@@ -109,6 +113,38 @@ const EventDetails = () => {
   useEffect(() => {
     refetch();
   }, [query]);
+
+  const findTicketIDForCurrentUser = tickets?.filter(
+    (ticket: any) => ticket?.creator?.$id === user?.$id
+  );
+
+  const toggleTrendingSwitch = async () => {
+    if (allTrendingPosts.length >= 1 && !posts[0]?.trending) {
+      return Alert.alert(
+        "Error",
+        "You can't set more than one Event as Trending Event"
+      );
+    }
+
+    try {
+      const updatedForm = {
+        documentId: posts[0]?.$id,
+        collectionId: config.eventsCollectionId,
+        trending: !posts[0]?.trending,
+      };
+
+      await updateVideoPost({
+        ...updatedForm,
+      });
+      refetch("dontshow");
+      !posts[0]?.trending &&
+        Alert.alert("Success", "Event successfully set as Trending");
+
+      allTrendingPostRefetch();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const submitComment = async () => {
     if (!comment) {
@@ -266,9 +302,18 @@ const EventDetails = () => {
         </View>
 
         <View className=" mb-2 mx-1 flex-row gap-x-3 items-center">
-          <Text className="text-gray-100 uppercase font-psemibold text-xs">
-            {posts[0]?.author}
-          </Text>
+          <View className="items-center flex-row gap-x-1">
+            <Text className="text-gray-100 uppercase font-psemibold text-xs">
+              {posts[0]?.author}
+            </Text>
+            {posts[0]?.creator?.role === "admin" ? (
+              <MaterialIcons name="verified" size={14} color="#6834ce" />
+            ) : posts[0]?.creator?.role === "verified" ? (
+              <MaterialIcons name="verified" size={14} color="#FF9C01" />
+            ) : (
+              <></>
+            )}
+          </View>
           <Text className="text-gray-100 uppercase font-psemibold text-xs">
             :
           </Text>
@@ -340,7 +385,27 @@ const EventDetails = () => {
           {ticketLoading ? (
             <ActivityIndicator color={"#6834ce"} />
           ) : tickets?.length > 0 ? (
-            <Text className="text-white font-pregular">You don book</Text>
+            <View className="p-5 border-2 border-black-100 bg-black-200 rounded-lg">
+              <View className="mb-2 flex-row gap-x-1 items-center">
+                <Text className="text-gray-200 font-pmedium">
+                  You've successfully registered for this Event
+                </Text>
+
+                <AntDesign name="checkcircleo" size={13} color="#fff" />
+              </View>
+
+              <Image
+                source={images.qrcode}
+                className="h-32 w-full rounded-lg  mb-2 "
+                resizeMode="cover"
+              />
+
+              <Text className="text-gray-200 font-pmedium">
+                Ticket ID:{" "}
+                {findTicketIDForCurrentUser?.length > 0 &&
+                  findTicketIDForCurrentUser[0]?.creator?.$id}
+              </Text>
+            </View>
           ) : (
             <CustomButton
               title="Book Ticket"
@@ -367,6 +432,64 @@ const EventDetails = () => {
               )}
             </>
           )}
+        </View>
+
+        <View className="my-5">
+          <Text className=" py-1 border-b-gray-200 border-b-[1px] text-gray-100 uppercase text-xs font-psemibold">
+            SETTINGS
+          </Text>
+
+          {user?.role === "admin" && (
+            <View className="justify-between py-1 border-b-gray-200 border-b-[1px]  flex-row items-center">
+              <View>
+                <Text className=" py-4 text-gray-100 flex-col  capitalize text-sm font-pmedium">
+                  Trending
+                </Text>
+              </View>
+
+              <View>
+                <Switch
+                  trackColor={{ false: "#767577", true: "#FF9C01" }}
+                  thumbColor={posts[0]?.trending ? "#FF9C01" : "#f4f3f4"}
+                  ios_backgroundColor="#3e3e3e"
+                  onValueChange={toggleTrendingSwitch}
+                  value={posts[0]?.trending}
+                  disabled={allTrendingPostLoading}
+                />
+              </View>
+            </View>
+          )}
+
+          {(user?.role === "admin" ||
+            (user?.role === "verified" &&
+              user?.$id === posts[0]?.creator?.$id)) && (
+            <View className="justify-between py-1 border-b-gray-200 border-b-[1px]  flex-row items-center">
+              <View>
+                <Text className=" py-4 text-gray-100 flex-col  capitalize text-sm font-pmedium">
+                  Notify Users
+                </Text>
+              </View>
+
+              <TouchableOpacity>
+                <Entypo name="bell" size={24} color="#c8c8c8" />
+              </TouchableOpacity>
+            </View>
+          )}
+          <View className="justify-between py-1 border-b-gray-200 border-b-[1px]  flex-row items-center">
+            <View>
+              <Text className=" py-4 text-gray-100 flex-col  capitalize text-sm font-pmedium">
+                Contact Admin
+              </Text>
+            </View>
+
+            <TouchableOpacity>
+              <Ionicons
+                name="chatbox-ellipses-outline"
+                size={24}
+                color="#FF8E01"
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
 

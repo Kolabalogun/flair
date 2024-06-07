@@ -55,6 +55,7 @@ const ModalComponent = ({
                   type={type}
                   deleteDoc={deleteDocument}
                   itm={item}
+                  bookticket={bookticket}
                 />
               )}
               ListHeaderComponent={() => (

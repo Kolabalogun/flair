@@ -21,6 +21,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import getTimeOfDay from "@/utils/timeOfTheDay";
 import Topic from "@/components/Topics";
 import NewsCard from "@/components/NewsCard";
+import { CreateNewsFormType } from "./create";
 
 const topics = [
   {
@@ -79,6 +80,11 @@ export default function HomeScreen() {
         return posts;
     }
   }, [posts, activeTab]);
+
+  const trendingpost =
+    posts?.filter((post: CreateNewsFormType) => post.trending).length > 0
+      ? posts?.filter((post: CreateNewsFormType) => post.trending)
+      : posts;
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -156,7 +162,7 @@ export default function HomeScreen() {
                   Trending News
                 </Text>
 
-                <Trending posts={posts ?? []} />
+                <Trending posts={trendingpost ?? []} />
               </View>
             )}
             <View className="w-full flex-1 pt-0 pb-8">

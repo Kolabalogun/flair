@@ -13,6 +13,7 @@ import {
   StyleSheet,
   RefreshControl,
   ActivityIndicator,
+  Switch,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -123,6 +124,22 @@ const NewsDetails = () => {
     }
   };
 
+  const toggleTrendingSwitch = async () => {
+    try {
+      const updatedForm = {
+        documentId: posts[0]?.$id,
+        collectionId: config.newsCollectionId,
+        trending: !posts[0]?.trending,
+      };
+
+      await updateVideoPost({
+        ...updatedForm,
+      });
+      refetch("dontshow");
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const submitLikes = async () => {
     try {
       const userLikes = posts[0]?.likes || [];
@@ -202,7 +219,7 @@ const NewsDetails = () => {
         />
       </View>
 
-      <ScrollView className="px-4 my-5">
+      <ScrollView className="px-4 my-5 mb-24">
         <View>
           <Text className="text-white  font-psemibold text-3xl">
             {posts[0]?.title}
@@ -210,9 +227,19 @@ const NewsDetails = () => {
         </View>
 
         <View className="my-3 mx-1 flex-row gap-x-3 items-center">
-          <Text className="text-gray-100 uppercase font-psemibold text-xs">
-            {posts[0]?.author}
-          </Text>
+          <View className="items-center flex-row gap-x-1">
+            <Text className="text-gray-100 uppercase font-psemibold text-xs">
+              {posts[0]?.author}
+            </Text>
+            {posts[0]?.creator?.role === "admin" ? (
+              <MaterialIcons name="verified" size={14} color="#6834ce" />
+            ) : posts[0]?.creator?.role === "verified" ? (
+              <MaterialIcons name="verified" size={14} color="#FF9C01" />
+            ) : (
+              <></>
+            )}
+          </View>
+
           <Text className="text-gray-100 uppercase font-psemibold text-xs">
             :
           </Text>
@@ -231,6 +258,64 @@ const NewsDetails = () => {
 
         <View className="my-4">
           <Text className="text-white font-pregular">{posts[0]?.desc} </Text>
+        </View>
+
+        <View className="my-5">
+          <Text className=" py-1 border-b-gray-200 border-b-[1px] text-gray-100 uppercase text-xs font-psemibold">
+            SETTINGS
+          </Text>
+
+          {user?.role === "admin" && (
+            <View className="justify-between py-1 border-b-gray-200 border-b-[1px]  flex-row items-center">
+              <View>
+                <Text className=" py-4 text-gray-100 flex-col  capitalize text-sm font-pmedium">
+                  Trending
+                </Text>
+              </View>
+
+              <View>
+                <Switch
+                  trackColor={{ false: "#767577", true: "#FF9C01" }}
+                  thumbColor={posts[0]?.trending ? "#FF9C01" : "#f4f3f4"}
+                  ios_backgroundColor="#3e3e3e"
+                  onValueChange={toggleTrendingSwitch}
+                  value={posts[0]?.trending}
+                />
+              </View>
+            </View>
+          )}
+
+          {(user?.role === "admin" ||
+            (user?.role === "verified" &&
+              user?.$id === posts[0]?.creator?.$id)) && (
+            <View className="justify-between py-1 border-b-gray-200 border-b-[1px]  flex-row items-center">
+              <View>
+                <Text className=" py-4 text-gray-100 flex-col  capitalize text-sm font-pmedium">
+                  Notify Users
+                </Text>
+              </View>
+
+              <TouchableOpacity>
+                <Entypo name="bell" size={24} color="#c8c8c8" />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <View className="justify-between py-1 border-b-gray-200 border-b-[1px]  flex-row items-center">
+            <View>
+              <Text className=" py-4 text-gray-100 flex-col  capitalize text-sm font-pmedium">
+                Contact Admin
+              </Text>
+            </View>
+
+            <TouchableOpacity>
+              <Ionicons
+                name="chatbox-ellipses-outline"
+                size={24}
+                color="#FF8E01"
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
 
