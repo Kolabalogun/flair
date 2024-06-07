@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { timeAgo } from "@/utils/timeAgo";
 import { router } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const TrendingItem = ({ item }: { item: any }) => {
   return (
@@ -35,9 +36,19 @@ const TrendingItem = ({ item }: { item: any }) => {
         </View>
       </View>
       <View className="my-2 mx-1 flex-row justify-between items-center">
-        <Text className="text-gray-100 uppercase font-psemibold text-xs">
-          {item?.author}
-        </Text>
+        <View className="items-center flex-row gap-x-1">
+          <Text className="text-gray-100 uppercase font-psemibold text-xs">
+            {item?.author}
+          </Text>
+          {item?.creator?.role === "admin" ? (
+            <MaterialIcons name="verified" size={14} color="#6834ce" />
+          ) : item?.creator?.role === "verified" ? (
+            <MaterialIcons name="verified" size={14} color="#FF9C01" />
+          ) : (
+            <></>
+          )}
+        </View>
+
         <Text className="text-gray-100 font-pmedium text-xs">
           {timeAgo(item?.$createdAt)}
         </Text>
@@ -47,8 +58,6 @@ const TrendingItem = ({ item }: { item: any }) => {
 };
 
 const Trending = ({ posts }: { posts: any }) => {
-  // console.log(posts[0]);
-
   return (
     <FlatList
       data={posts}

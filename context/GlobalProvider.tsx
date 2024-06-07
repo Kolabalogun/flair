@@ -1,4 +1,5 @@
-import { getCurrentUser } from "@/lib/appwrite";
+import { getAllUsers, getCurrentUser } from "@/lib/appwrite";
+import useAppwrite from "@/lib/useAppwrite";
 import React, {
   createContext,
   useContext,
@@ -10,11 +11,16 @@ import React, {
 // Define the shape of the context value
 interface GlobalContextType {
   isLoggedIn: boolean | null;
-
+  expoPushToken: string;
+  setExpoPushToken: React.Dispatch<React.SetStateAction<string>>;
   user: any;
   setUser: React.Dispatch<any>;
   isLoading: boolean;
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean | null>>;
+  allexpoPushToken: string[];
+
+  updateUser: boolean;
+  setUpdateUser: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // Create the context with an undefined default value
@@ -37,8 +43,27 @@ interface GlobalProviderProps {
 // GlobalProvider component
 export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+  const [expoPushToken, setExpoPushToken] = useState<string>("");
+  const [allexpoPushToken, setAllExpoPushToken] = useState<string[]>([]);
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const [updateUser, setUpdateUser] = useState<boolean>(true);
+
+  const { data: users, loading } = useAppwrite(getAllUsers);
+
+  useEffect(() => {
+    const getExpoIDs = () => {
+      if (!loading) {
+        const filteredExpoId = users
+          .filter((user: any) => user.expo_Id)
+          .map((user: any) => user.expo_Id);
+        setAllExpoPushToken(filteredExpoId);
+      }
+    };
+    getExpoIDs();
+  }, [users]);
 
   useEffect(() => {
     getCurrentUser()
@@ -57,7 +82,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+  }, [updateUser]);
 
   return (
     <GlobalContext.Provider
@@ -67,6 +92,11 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         user,
         setUser,
         isLoading,
+        expoPushToken,
+        setExpoPushToken,
+        allexpoPushToken,
+        updateUser,
+        setUpdateUser,
       }}
     >
       {children}

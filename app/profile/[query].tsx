@@ -1,44 +1,72 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   View,
   Image,
   FlatList,
-  TouchableOpacity,
   ActivityIndicator,
   Text,
+  TouchableOpacity,
+  Switch,
+  Alert,
 } from "react-native";
 
-import { icons } from "../../constants";
 import useAppwrite from "../../lib/useAppwrite";
-import { getUserPosts, signOut } from "../../lib/appwrite";
-import { useGlobalContext } from "../../context/GlobalProvider";
+import { getUserPosts, searchUsers, updateVideoPost } from "../../lib/appwrite";
 
-import EmptyState from "@/components/EmptyState";
 import InfoBox from "@/components/InfoBox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CreateTab from "@/components/CreateTab";
 import NewsCard from "@/components/NewsCard";
 import EventCard from "@/components/EventCard";
-import { Alert } from "react-native";
+
 import { RefreshControl } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { icons, images } from "@/constants";
+import { useGlobalContext } from "@/context/GlobalProvider";
 
-const Profile = () => {
-  const { user, setUser, setIsLoggedIn } = useGlobalContext();
+const ProfileDetails = () => {
+  const { query } = useLocalSearchParams();
+
+  const searchQuery = Array.isArray(query) ? query[0] : query || "";
+  const { user: seniorMan, updateUser, setUpdateUser } = useGlobalContext();
+  const {
+    data: users,
+    refetch: usersRefresh,
+    loading: usersLoading,
+  } = useAppwrite(() => searchUsers(searchQuery));
+
+  const [userId, setUserId] = useState(null);
+
+  console.log(seniorMan?.role);
+
+  const [user, setUser] = useState<any>(null);
+
+  // Update postId when posts data changes
+  useEffect(() => {
+    if (users && users.length > 0) {
+      setUserId(users[0]?.$id);
+      setUser(users[0]);
+    }
+  }, [users]);
+
+  useEffect(() => {
+    usersRefresh();
+  }, [query]);
+
+  //   console.log(user);
+
   const {
     data: posts,
     refetch,
     loading: ploading,
-  } = useAppwrite(() => getUserPosts(user.$id));
+  } = useAppwrite(() => getUserPosts(user?.$id), userId);
 
   const {
     data: events,
     refetch: erefetch,
     loading: eloading,
-  } = useAppwrite(() => getUserPosts(user.$id, "event"));
-
-  const [loading, setLoading] = useState(false);
+  } = useAppwrite(() => getUserPosts(user?.$id, "event"), userId);
 
   const [activeTab, setActiveTab] = useState("news");
 
@@ -50,18 +78,48 @@ const Profile = () => {
     await erefetch();
     setRefreshing(false);
   };
+  const [loadingU, setLoadingU] = useState(false);
 
-  const logout = async () => {
-    setLoading(true);
-    await signOut();
-    setUser(null);
-    setIsLoggedIn(false);
-    setLoading(false);
-    Alert.alert("Flair", "User logged out successfully");
-    router.replace("/login");
+  const updateUserInfo = async (query: string) => {
+    let updateRole;
+    if (user?.role === "user" && query === "admin") {
+      updateRole = "admin";
+    } else if (user?.role === "user" && query === "verified") {
+      updateRole = "verified";
+    } else if (user?.role === "admin" && query === "admin") {
+      updateRole = "verified";
+    } else if (user?.role === "verified" && query === "admin") {
+      updateRole = "admin";
+    } else if (user?.role === "verified" && query === "verified") {
+      updateRole = "user";
+    } else if (user?.role === "admin" && query === "verified") {
+      updateRole = "user";
+    }
+
+    const form = {
+      collectionId: user?.$collectionId,
+      documentId: user?.$id,
+      role: updateRole,
+    };
+    setLoadingU(true);
+    try {
+      await updateVideoPost(form);
+
+      Alert.alert("Success", `${user?.username} status updated`);
+
+      usersRefresh("dontshow");
+
+      user?.$id === seniorMan?.$id && setUpdateUser(!updateUser);
+    } catch (error) {
+      console.log(error);
+
+      Alert.alert("Error", "An error has occurred, please try again");
+    } finally {
+      setLoadingU(false);
+    }
   };
 
-  if (ploading || eloading) {
+  if (usersLoading) {
     return (
       <SafeAreaView className="bg-primary flex-1 ">
         <View className="h-[95vh] items-center justify-center">
@@ -86,77 +144,128 @@ const Profile = () => {
             <EventCard item={item} />
           )
         }
-        ListEmptyComponent={() => (
-          <EmptyState
-            title={`No ${activeTab === "news" ? "News" : "Event"} Found`}
-            subtitle={`No ${
-              activeTab === "news" ? "news" : "event"
-            } found for this profile`}
-            event={activeTab !== "news" ? "event" : null}
-          />
-        )}
         ListHeaderComponent={() => (
-          <View className="w-full flex justify-center items-center mt-6 mb-12 px-4">
-            {loading ? (
-              <View className="flex w-full items-end mb-10">
-                <ActivityIndicator
-                  color={activeTab === "news" ? "#FF9C01" : "#6834ce"}
-                />
-              </View>
-            ) : (
-              <TouchableOpacity
-                onPress={logout}
-                className="flex w-full items-end mb-10"
-              >
+          <View className="w-full flex justify-center   mt-6 mb-12 px-4 ">
+            <View className="justify-between flex-row flex-1  items-center mb-10">
+              <TouchableOpacity onPress={() => router.back()} className="">
                 <Image
-                  source={icons.logout}
+                  source={icons.all}
+                  resizeMode="contain"
+                  style={{ height: 24, width: 24 }}
+                />
+              </TouchableOpacity>
+              <View>
+                <Text className="text-gray-200 text-lg font-pmedium capitalize">
+                  User Profile
+                </Text>
+                <View className="w-4 self-center   bg-secondary h-[2px]"></View>
+              </View>
+              <View className=" ">
+                <Image
+                  source={images.logoSmall}
                   resizeMode="contain"
                   className="w-6 h-6"
                 />
-              </TouchableOpacity>
+              </View>
+            </View>
+            <View className="items-center">
+              <View className="w-16 h-16 border border-secondary rounded-lg flex justify-center items-center">
+                <Image
+                  source={{ uri: user?.avatar }}
+                  className="w-[90%] h-[90%] rounded-lg"
+                  resizeMode="cover"
+                />
+              </View>
+
+              <InfoBox
+                title={user?.username}
+                containerStyles="mt-5"
+                titleStyles="text-lg"
+              />
+
+              <View className="items-center flex-row">
+                <Text className="text-gray-100 text-xs font-psemibold ">
+                  Status:{" "}
+                </Text>
+
+                {user?.role === "user" ? (
+                  <Text className="text-gray-100 font-medium text-xs">
+                    Not Verified
+                  </Text>
+                ) : user?.role === "admin" ? (
+                  <MaterialIcons name="verified" size={14} color="#6834ce" />
+                ) : (
+                  <MaterialIcons name="verified" size={14} color="#FF9C01" />
+                )}
+              </View>
+
+              <View className="my-5 flex flex-row">
+                <InfoBox
+                  title={posts?.length || 0}
+                  subtitle="Posts"
+                  titleStyles="text-xl"
+                  containerStyles="mr-10"
+                />
+                <InfoBox
+                  title={events?.length || 0}
+                  subtitle="Events"
+                  titleStyles="text-xl"
+                />
+              </View>
+            </View>
+
+            {seniorMan?.role === "admin" && (
+              <View className="my-5">
+                <Text className=" py-1 border-b-gray-200 border-b-[1px] text-gray-100 uppercase text-xs font-psemibold">
+                  SETTINGS
+                </Text>
+
+                <View className="justify-between py-1 border-b-gray-200 border-b-[1px]  flex-row items-center">
+                  <View>
+                    <Text className=" py-4 text-gray-100 flex-col  capitalize text-sm font-pmedium">
+                      Admin
+                    </Text>
+                  </View>
+
+                  <View>
+                    <Switch
+                      trackColor={{ false: "#767577", true: "#6834ce" }}
+                      thumbColor={
+                        user?.role === "admin" ? "#6834ce" : "#f4f3f4"
+                      }
+                      ios_backgroundColor="#3e3e3e"
+                      onValueChange={() => updateUserInfo("admin")}
+                      value={user?.role === "admin"}
+                      disabled={loadingU}
+                    />
+                  </View>
+                </View>
+                <View className="justify-between py-1 border-b-gray-200 border-b-[1px]  flex-row items-center">
+                  <View>
+                    <Text className=" py-4 text-gray-100 flex-col  capitalize text-sm font-pmedium">
+                      Verify User
+                    </Text>
+                  </View>
+
+                  <View>
+                    <Switch
+                      trackColor={{ false: "#767577", true: "#FF9C01" }}
+                      thumbColor={
+                        user?.role === "verified" || user?.role === "admin"
+                          ? "#FF9C01"
+                          : "#f4f3f4"
+                      }
+                      ios_backgroundColor="#3e3e3e"
+                      onValueChange={() => updateUserInfo("verified")}
+                      value={
+                        user?.role === "verified" || user?.role === "admin"
+                      }
+                      disabled={loadingU}
+                    />
+                  </View>
+                </View>
+              </View>
             )}
-
-            <View className="w-16 h-16 border border-secondary rounded-lg flex justify-center items-center">
-              <Image
-                source={{ uri: user?.avatar }}
-                className="w-[90%] h-[90%] rounded-lg"
-                resizeMode="cover"
-              />
-            </View>
-
-            <InfoBox
-              title={user?.username}
-              containerStyles="mt-5"
-              titleStyles="text-lg"
-            />
-
-            <View className="items-center flex-row">
-              <Text className="text-gray-100 text-xs font-psemibold ">
-                Status:{" "}
-              </Text>
-
-              {user?.role === "user" ? (
-                <Text>Not Verified</Text>
-              ) : user?.role === "admin" ? (
-                <MaterialIcons name="verified" size={14} color="#6834ce" />
-              ) : (
-                <MaterialIcons name="verified" size={14} color="#FF9C01" />
-              )}
-            </View>
-
-            <View className="my-5 flex flex-row">
-              <InfoBox
-                title={posts?.length || 0}
-                subtitle="Posts"
-                titleStyles="text-xl"
-                containerStyles="mr-10"
-              />
-              <InfoBox
-                title={events?.length || 0}
-                subtitle="Events"
-                titleStyles="text-xl"
-              />
-            </View>
 
             <View className="w-full     bg-gray-100 h-[1px] mb-5"></View>
 
@@ -171,4 +280,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default ProfileDetails;

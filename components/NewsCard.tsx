@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, Image } from "react-native";
 import React from "react";
 import { timeAgo } from "@/utils/timeAgo";
 import { router } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const NewsCard = ({ item }: any) => {
   return (
@@ -23,9 +24,18 @@ const NewsCard = ({ item }: any) => {
           <Text className="text-white font-pmedium ">{item?.title}</Text>
 
           <View className="my-2   flex-row justify-between items-center">
-            <Text className="text-gray-100 uppercase font-psemibold text-xs">
-              {item?.author}
-            </Text>
+            <View className="items-center flex-row gap-x-1">
+              <Text className="text-gray-100 uppercase font-psemibold text-xs">
+                {item?.author}
+              </Text>
+              {item?.creator?.role === "admin" ? (
+                <MaterialIcons name="verified" size={14} color="#6834ce" />
+              ) : item?.creator?.role === "verified" ? (
+                <MaterialIcons name="verified" size={14} color="#FF9C01" />
+              ) : (
+                <></>
+              )}
+            </View>
             <Text className="text-gray-100 font-pmedium text-xs">
               {timeAgo(item?.$createdAt)}
             </Text>

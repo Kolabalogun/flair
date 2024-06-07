@@ -3,15 +3,10 @@ import { router, useLocalSearchParams } from "expo-router";
 import {
   View,
   Text,
-  FlatList,
   Image,
   ScrollView,
   TouchableOpacity,
-  Modal,
   Alert,
-  Pressable,
-  StyleSheet,
-  RefreshControl,
   ActivityIndicator,
   TextInput,
   Switch,
@@ -302,7 +297,12 @@ const EventDetails = () => {
         </View>
 
         <View className=" mb-2 mx-1 flex-row gap-x-3 items-center">
-          <View className="items-center flex-row gap-x-1">
+          <TouchableOpacity
+            onPress={() =>
+              router.push(`/profile/${posts[0]?.creator?.accountId}`)
+            }
+            className="items-center flex-row gap-x-1"
+          >
             <Text className="text-gray-100 uppercase font-psemibold text-xs">
               {posts[0]?.author}
             </Text>
@@ -313,7 +313,7 @@ const EventDetails = () => {
             ) : (
               <></>
             )}
-          </View>
+          </TouchableOpacity>
           <Text className="text-gray-100 uppercase font-psemibold text-xs">
             :
           </Text>

@@ -9,8 +9,6 @@ import {
   TouchableOpacity,
   Modal,
   Alert,
-  Pressable,
-  StyleSheet,
   RefreshControl,
   ActivityIndicator,
   Switch,
@@ -36,6 +34,7 @@ import EmptyState from "@/components/EmptyState";
 import CommentCard from "@/components/CommentCard";
 import FormField from "@/components/FormField";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import { sendPushNotification } from "@/lib/notification";
 
 export interface Comment {
   $id: string;
@@ -51,7 +50,7 @@ interface Author {
 
 const NewsDetails = () => {
   const { query } = useLocalSearchParams();
-  const { user } = useGlobalContext();
+  const { user, allexpoPushToken } = useGlobalContext();
   const [modalVisible, setModalVisible] = useState(false);
 
   const [commentLoader, setCommentLoader] = useState(false);
@@ -189,6 +188,26 @@ const NewsDetails = () => {
     }
   };
 
+  const [pushNLoading, setPushNLoading] = useState(false);
+
+  const sendNotificationToAllUsers = async () => {
+    setPushNLoading(true);
+
+    try {
+      await sendPushNotification(allexpoPushToken, {
+        title: posts[0]?.title,
+        body: posts[0].desc,
+      });
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        "An error occurred while sending push notifications"
+      );
+    } finally {
+      setPushNLoading(false);
+    }
+  };
+
   if (loading || posts.length === 0) {
     return (
       <SafeAreaView className="bg-primary flex-1 ">
@@ -227,7 +246,12 @@ const NewsDetails = () => {
         </View>
 
         <View className="my-3 mx-1 flex-row gap-x-3 items-center">
-          <View className="items-center flex-row gap-x-1">
+          <TouchableOpacity
+            onPress={() =>
+              router.push(`/profile/${posts[0]?.creator?.accountId}`)
+            }
+            className="items-center flex-row gap-x-1"
+          >
             <Text className="text-gray-100 uppercase font-psemibold text-xs">
               {posts[0]?.author}
             </Text>
@@ -238,7 +262,7 @@ const NewsDetails = () => {
             ) : (
               <></>
             )}
-          </View>
+          </TouchableOpacity>
 
           <Text className="text-gray-100 uppercase font-psemibold text-xs">
             :
@@ -295,8 +319,12 @@ const NewsDetails = () => {
                 </Text>
               </View>
 
-              <TouchableOpacity>
-                <Entypo name="bell" size={24} color="#c8c8c8" />
+              <TouchableOpacity onPress={sendNotificationToAllUsers}>
+                {pushNLoading ? (
+                  <ActivityIndicator color={"#FF9C01"} />
+                ) : (
+                  <Entypo name="bell" size={24} color="#c8c8c8" />
+                )}
               </TouchableOpacity>
             </View>
           )}

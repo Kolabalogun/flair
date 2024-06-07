@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   View,
@@ -26,6 +26,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 const Profile = () => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext();
+
   const {
     data: posts,
     refetch,
@@ -136,7 +137,9 @@ const Profile = () => {
               </Text>
 
               {user?.role === "user" ? (
-                <Text>Not Verified</Text>
+                <Text className="text-gray-100 font-medium text-xs">
+                  Not Verified
+                </Text>
               ) : user?.role === "admin" ? (
                 <MaterialIcons name="verified" size={14} color="#6834ce" />
               ) : (

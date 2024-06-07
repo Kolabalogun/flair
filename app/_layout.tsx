@@ -34,17 +34,19 @@ export default function RootLayout() {
 
   return (
     <GlobalProvider>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="news/[query]" options={{ headerShown: false }} />
-        <Stack.Screen name="event/[query]" options={{ headerShown: false }} />
-        <Stack.Screen name="search/[query]" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="eventsearch/[query]"
-          options={{ headerShown: false }}
-        />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="news/[query]" />
+        <Stack.Screen name="event/[query]" />
+        <Stack.Screen name="search/[query]" />
+        <Stack.Screen name="profile/[query]" />
+        <Stack.Screen name="eventsearch/[query]" />
 
         <Stack.Screen name="+not-found" />
       </Stack>

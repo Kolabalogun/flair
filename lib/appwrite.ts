@@ -51,7 +51,8 @@ const storage = new Storage(client);
 export const createUser = async (
   email: string,
   password: string,
-  username: string
+  username: string,
+  expoPushToken: string
 ) => {
   try {
     const newAccount = await account.create(
@@ -77,6 +78,7 @@ export const createUser = async (
         username,
         avatar: avatarUrl,
         role: "user",
+        expo_Id: expoPushToken,
       }
     );
 
@@ -148,6 +150,21 @@ export async function getAllPosts() {
   }
 }
 
+export async function getAllUsers() {
+  try {
+    const posts = await database.listDocuments(
+      config.databaseId,
+      config.userCollectionId,
+      [Query.orderDesc("$createdAt")]
+    );
+
+    return posts.documents;
+  } catch (error: any) {
+    console.log(error);
+    throw new Error(error);
+  }
+}
+
 export async function getAllEvents() {
   try {
     const posts = await database.listDocuments(
@@ -179,6 +196,22 @@ export async function getTrendingNews() {
   } catch (error: any) {
     console.log(error);
     throw new Error(error);
+  }
+}
+
+export async function searchUsers(query: string) {
+  try {
+    const posts = await database.listDocuments(
+      config.databaseId,
+      config.userCollectionId,
+      [Query.search("accountId", query)]
+    );
+
+    if (!posts) throw new Error("Something went wrong");
+
+    return posts.documents;
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 }
 
@@ -282,17 +315,19 @@ export async function signOut() {
 }
 
 // Get  posts created by user
-export async function getUserPosts(userId: string, type?: string) {
-  try {
-    const posts = await database.listDocuments(
-      config.databaseId,
-      type === "event" ? config.eventsCollectionId : config.newsCollectionId,
-      [Query.equal("creator", userId)]
-    );
+export async function getUserPosts(userId?: string, type?: string) {
+  if (userId) {
+    try {
+      const posts = await database.listDocuments(
+        config.databaseId,
+        type === "event" ? config.eventsCollectionId : config.newsCollectionId,
+        [Query.equal("creator", userId)]
+      );
 
-    return posts.documents;
-  } catch (error: any) {
-    throw new Error(error);
+      return posts.documents;
+    } catch (error: any) {
+      throw new Error(error);
+    }
   }
 }
 
@@ -414,15 +449,13 @@ export async function createEventPost(form: CreateNewsEventFormType) {
 
 // Update Post
 export async function updateVideoPost(form: any) {
-  console.log(form);
-
   try {
-    const { collectionId, ...updatedForm } = form;
+    const { collectionId, documentId, ...updatedForm } = form;
 
     const newPost = await database.updateDocument(
       config.databaseId,
       collectionId,
-      form.documentId,
+      documentId,
       updatedForm
     );
 

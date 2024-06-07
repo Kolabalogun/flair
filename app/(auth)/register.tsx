@@ -17,7 +17,7 @@ import { createUser } from "@/lib/appwrite";
 import { useGlobalContext } from "@/context/GlobalProvider";
 
 const Register = () => {
-  const { setUser, setIsLoggedIn } = useGlobalContext();
+  const { setUser, setIsLoggedIn, expoPushToken } = useGlobalContext();
 
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -62,7 +62,8 @@ const Register = () => {
       const result = await createUser(
         email.trim(),
         password.trim(),
-        username.trim()
+        username.trim(),
+        expoPushToken
       );
 
       setIsLoggedIn(true);
