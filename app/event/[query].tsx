@@ -82,6 +82,8 @@ const EventDetails = () => {
     loading: loadingComments,
   } = useAppwrite(() => getAllComments(postId, true), postId);
 
+  const filteredComments = comments?.filter((comment: any) => comment?.creator);
+
   const {
     data: allTrendingPosts,
     loading: allTrendingPostLoading,
@@ -93,6 +95,10 @@ const EventDetails = () => {
     loading: allTicketLoading,
     refetch: allTicketRefetch,
   } = useAppwrite(() => searchTicket(postId), postId);
+
+  const filteredAllTickets = allTickets?.filter(
+    (ticket: any) => ticket?.creator
+  );
 
   const {
     data: tickets,
@@ -289,13 +295,8 @@ const EventDetails = () => {
 
   const handleContactAdmin = async () => {
     const url = "https://wa.me/2347045074494";
-    const supported = await Linking.canOpenURL(url);
 
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert(`Don't know how to open this URL: ${url}`);
-    }
+    await Linking.openURL(url);
   };
 
   if (loading || posts.length === 0) {
@@ -388,7 +389,7 @@ const EventDetails = () => {
             :
           </Text>
           <Text className="text-secondary font-pmedium text-xs">
-            {allTickets?.length || 0}
+            {filteredAllTickets?.length || 0}
           </Text>
         </View>
         {posts[0]?.entryFee !== "0" && (
@@ -420,58 +421,61 @@ const EventDetails = () => {
           <Text className="text-white font-pregular">{posts[0]?.desc} </Text>
         </View>
 
-        <View className="mb-5">
-          {ticketLoading ? (
-            <ActivityIndicator color={"#6834ce"} />
-          ) : tickets?.length > 0 ? (
-            <View className="p-5 border-2 border-black-100 bg-black-200 rounded-lg">
-              <View className="mb-2 flex-row gap-x-1 items-center">
-                <Text className="text-gray-200 font-pmedium">
-                  You've successfully registered for this Event
-                </Text>
+        {user?.role !== "suspended" && (
+          <View className="mb-5">
+            {ticketLoading ? (
+              <ActivityIndicator color={"#6834ce"} />
+            ) : tickets?.length > 0 ? (
+              <View className="p-5 border-2 border-black-100 bg-black-200 rounded-lg">
+                <View className=" ">
+                  <Text className="text-gray-200 font-pmedium">
+                    You've successfully registered for this Event
+                  </Text>
+                </View>
 
-                <AntDesign name="checkcircleo" size={13} color="#fff" />
-              </View>
-
-              <Image
-                source={images.qrcode}
-                className="h-32 w-full rounded-lg  mb-2 "
-                resizeMode="cover"
-              />
-
-              <Text className="text-gray-200 font-pmedium">
-                Ticket ID:{" "}
-                {findTicketIDForCurrentUser?.length > 0 &&
-                  findTicketIDForCurrentUser[0]?.creator?.$id}
-              </Text>
-            </View>
-          ) : (
-            <CustomButton
-              title="Book Ticket"
-              handlePress={() => setBTModalVisible(!btModalVisible)}
-              containerStyles="mt-7"
-              isLoading={bTLoader}
-              event="event"
-            />
-          )}
-        </View>
-
-        <View className=" ">
-          {allTicketLoading || allTickets?.length === 0 ? (
-            <Text></Text>
-          ) : (
-            <>
-              {user?.$id === (posts?.[0] && posts[0].creator?.$id) && (
-                <CustomButton
-                  title="View Reservations"
-                  handlePress={() => setTModalVisible(!tModalVisible)}
-                  containerStyles="mt-7"
-                  isLoading={bTLoader}
+                <Image
+                  source={images.qrcode}
+                  className="h-32 w-full rounded-lg  mb-2 "
+                  resizeMode="cover"
                 />
-              )}
-            </>
-          )}
-        </View>
+
+                <Text className="text-gray-200 font-pmedium">
+                  Ticket ID:{" "}
+                  {findTicketIDForCurrentUser?.length > 0 &&
+                    findTicketIDForCurrentUser[0]?.creator?.$id}
+                </Text>
+              </View>
+            ) : (
+              <CustomButton
+                title="Book Ticket"
+                handlePress={() => setBTModalVisible(!btModalVisible)}
+                containerStyles="mt-7"
+                isLoading={bTLoader}
+                event="event"
+              />
+            )}
+          </View>
+        )}
+
+        {user?.role !== "suspended" && (
+          <View className=" ">
+            {allTicketLoading || filteredAllTickets?.length === 0 ? (
+              <Text></Text>
+            ) : (
+              <>
+                {(user?.$id === (posts?.[0] && posts[0].creator?.$id) ||
+                  user?.role === "admin") && (
+                  <CustomButton
+                    title="View Reservations"
+                    handlePress={() => setTModalVisible(!tModalVisible)}
+                    containerStyles="mt-7"
+                    isLoading={bTLoader}
+                  />
+                )}
+              </>
+            )}
+          </View>
+        )}
 
         <View className="my-5">
           <Text className=" py-1 border-b-gray-200 border-b-[1px] text-gray-100 uppercase text-xs font-psemibold">
@@ -536,48 +540,51 @@ const EventDetails = () => {
         </View>
       </ScrollView>
 
-      <View className="bg-black-100 border-2 border-black-200 px-2 py-1 flex-row justify-between w-48  my-4 absolute bottom-3 self-center  rounded-full">
-        <View className="flex-row items-center gap-1 ">
-          <TouchableOpacity
-            disabled={loadingComments}
-            onPress={() => setModalVisible(true)}
-            className="items-center    bg-black-200 p-2 rounded-full   "
-          >
-            <Ionicons
-              name="chatbox-ellipses-outline"
-              size={22}
-              color="#C8C8C8"
-            />
-          </TouchableOpacity>
-          <Text className="text-sm font-pmedium text-gray-100">
-            {comments?.length}
-          </Text>
-        </View>
-        <View className="flex-row items-center gap-1 ">
-          <TouchableOpacity
-            onPress={submitLikes}
-            className="items-center  bg-black-200 p-2   rounded-full  "
-          >
-            {posts[0]?.likes?.includes(user?.$id) ? (
-              <AntDesign name="heart" size={20} color="red" />
-            ) : (
-              <AntDesign name="hearto" size={20} color="#C8C8C8" />
-            )}
-          </TouchableOpacity>
-          <Text className="text-sm font-pmedium text-gray-100">
-            {posts[0]?.likes?.length || 0}
-          </Text>
-        </View>
+      {user?.role !== "suspended" && (
+        <View className="bg-black-100 border-2 border-black-200 px-2 py-1 flex-row justify-between w-48  my-4 absolute bottom-3 self-center  rounded-full">
+          <View className="flex-row items-center gap-1 ">
+            <TouchableOpacity
+              disabled={loadingComments}
+              onPress={() => setModalVisible(true)}
+              className="items-center    bg-black-200 p-2 rounded-full   "
+            >
+              <Ionicons
+                name="chatbox-ellipses-outline"
+                size={22}
+                color="#C8C8C8"
+              />
+            </TouchableOpacity>
+            <Text className="text-sm font-pmedium text-gray-100">
+              {filteredComments?.length}
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-1 ">
+            <TouchableOpacity
+              onPress={submitLikes}
+              className="items-center  bg-black-200 p-2   rounded-full  "
+            >
+              {posts[0]?.likes?.includes(user?.$id) ? (
+                <AntDesign name="heart" size={20} color="red" />
+              ) : (
+                <AntDesign name="hearto" size={20} color="#C8C8C8" />
+              )}
+            </TouchableOpacity>
+            <Text className="text-sm font-pmedium text-gray-100">
+              {posts[0]?.likes?.length || 0}
+            </Text>
+          </View>
 
-        {posts[0]?.creator?.$id === user?.$id && (
-          <TouchableOpacity
-            onPress={() => deleteDocument(posts[0], "post")}
-            className="items-center  bg-black-200 p-2  rounded-full  "
-          >
-            <MaterialIcons name="delete" size={22} color="#C8C8C8" />
-          </TouchableOpacity>
-        )}
-      </View>
+          {(posts[0]?.creator?.$id === user?.$id || user?.role === "admin") && (
+            <TouchableOpacity
+              onPress={() => deleteDocument(posts[0], "post")}
+              className="items-center  bg-black-200 p-2  rounded-full  "
+            >
+              <MaterialIcons name="delete" size={22} color="#C8C8C8" />
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+
       {/* Comment */}
       <ModalComponent
         modalVisible={modalVisible}
@@ -585,7 +592,7 @@ const EventDetails = () => {
         comment={comment}
         type
         // bookticket={false}
-        comments={comments}
+        comments={filteredComments}
         deleteDocument={deleteDocument}
         commentLoader={commentLoader}
         submitComment={submitComment}
@@ -683,7 +690,7 @@ const EventDetails = () => {
         comment={comment}
         type
         bookticket="seats"
-        comments={allTickets}
+        comments={filteredAllTickets}
         deleteDocument={deleteDocument}
         commentLoader={commentLoader}
         submitComment={() => console.log("ticket")}

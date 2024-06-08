@@ -174,10 +174,6 @@ const Home = () => {
             Discover News & Events: A Journey of Endless Exploration with Flair!
           </Text>
 
-          <Text className="text-sm font-pregular text-gray-100 mt-7 text-center">
-            {expoPushToken}
-          </Text>
-
           <CustomButton
             isLoading={isSignedIn || loading}
             title="Continue with Email"

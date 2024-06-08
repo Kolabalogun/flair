@@ -21,19 +21,22 @@ const EmptyState = ({
         className="w-[270px] h-[216px]"
       />
 
-      <Text className="text-sm font-pmedium text-gray-100">{title}</Text>
+      <Text className="text-sm text-center font-pmedium text-gray-100">
+        {title}
+      </Text>
       <Text className="text-xl text-center font-psemibold text-white mt-2">
         {subtitle}
       </Text>
 
-      {title !== "No Comment Found" && (
-        <CustomButton
-          title={`Create an ${event ? "event" : "article"}`}
-          handlePress={() => router.push("/create")}
-          containerStyles="w-full my-5"
-          event={event}
-        />
-      )}
+      {title !== "No Comment Found" &&
+        title !==
+          "User Profile not found or user account is currently suspended" && (
+          <CustomButton
+            title={`Create an ${event ? "event" : "article"}`}
+            handlePress={() => router.push("/create")}
+            containerStyles="w-full my-5"
+          />
+        )}
     </View>
   );
 };

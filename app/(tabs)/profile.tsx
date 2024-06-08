@@ -9,7 +9,7 @@ import {
   Text,
 } from "react-native";
 
-import { icons } from "../../constants";
+import { icons, images } from "../../constants";
 import useAppwrite from "../../lib/useAppwrite";
 import { getUserPosts, signOut } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
@@ -112,13 +112,13 @@ const Profile = () => {
               </View>
             ) : (
               <TouchableOpacity
-                onPress={logout}
+                onLongPress={logout}
                 className="flex w-full items-end mb-10"
               >
                 <Image
-                  source={icons.logout}
+                  source={images.logoSmall}
                   resizeMode="contain"
-                  className="w-6 h-6"
+                  className="w-8 h-8"
                 />
               </TouchableOpacity>
             )}
@@ -148,6 +148,10 @@ const Profile = () => {
                 </Text>
               ) : user?.role === "admin" ? (
                 <MaterialIcons name="verified" size={14} color="#6834ce" />
+              ) : user?.role === "suspended" ? (
+                <Text className="text-red-700 font-medium text-xs">
+                  Suspended
+                </Text>
               ) : (
                 <MaterialIcons name="verified" size={14} color="#FF9C01" />
               )}

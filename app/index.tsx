@@ -11,8 +11,7 @@ import * as Notifications from "expo-notifications";
 import { registerForPushNotificationsAsync } from "./landingPage";
 
 const Home = () => {
-  const { isLoggedIn, isLoading, setExpoPushToken, expoPushToken, setUser } =
-    useGlobalContext();
+  const { setExpoPushToken, setUser } = useGlobalContext();
 
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -112,16 +111,12 @@ const Home = () => {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-primary h-full">
         <ActivityIndicator size={"large"} color={"#FF9C01"} />
-
-        <Text className="mt-5 text-white">{expoPushToken} </Text>
       </SafeAreaView>
     );
 
   return (
     <SafeAreaView className="flex-1 items-center justify-center bg-primary h-full">
       <ActivityIndicator size={"large"} color={"#FF9C01"} />
-
-      <Text className="mt-5 text-white">{expoPushToken} </Text>
     </SafeAreaView>
   );
 };

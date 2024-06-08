@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Alert, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { createEventPost, createVideoPost } from "../../lib/appwrite";
+import {
+  createEventPost,
+  createVideoPost,
+  searchUsers,
+} from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import UploadNews from "@/components/UploadNews";
 import UploadEvent from "@/components/UploadEvent";
@@ -73,6 +77,8 @@ const Create = () => {
 
   const [activeTab, setActiveTab] = useState("news");
 
+  const [adminExpoIDs, setAdminExpoIDs] = useState<string[]>([]);
+
   const { title, image, desc, type } = form;
 
   const openPicker = async (event?: string) => {
@@ -102,9 +108,39 @@ const Create = () => {
     }
   };
 
+  useEffect(() => {
+    usersWithRoleAdmin();
+  }, [user]);
+
+  const usersWithRoleAdmin = async () => {
+    try {
+      const res = await searchUsers("role", "admin");
+
+      if (res.length > 0) {
+        const filtredRes = res
+          ?.filter((user) => user.expo_Id)
+          .map((user) => user.expo_Id);
+
+        // Remove duplicates using a Set and convert back to array
+        const uniqueExpoIds: string[] = Array.from(new Set(filtredRes));
+
+        setAdminExpoIDs(uniqueExpoIds);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const submit = async () => {
     if (!title || !image || !desc || !type) {
       return Alert.alert("Error", "Please provide all fields");
+    }
+
+    if (user?.role === "suspended") {
+      return Alert.alert(
+        "Error",
+        "Your account has been suspended. Contact your administrator"
+      );
     }
 
     const updatedForm = {
@@ -132,7 +168,10 @@ const Create = () => {
         body: `${desc.substring(0, 100)}...`,
       };
       user?.role === "user"
-        ? sendPushNotification([expoPushToken], formNotification)
+        ? sendPushNotification(
+            [expoPushToken, ...adminExpoIDs],
+            formNotification
+          )
         : sendPushNotification([...allexpoPushToken], newsNotification);
       router.push("/home");
     } catch (error: any) {
@@ -154,6 +193,13 @@ const Create = () => {
       !eventForm.entryFee
     ) {
       return Alert.alert("Error", "Please provide all fields");
+    }
+
+    if (user?.role === "suspended") {
+      return Alert.alert(
+        "Error",
+        "Your account has been suspended. Contact your administrator"
+      );
     }
 
     const updatedForm = {
@@ -181,7 +227,10 @@ const Create = () => {
         body: `${desc.substring(0, 100)}...`,
       };
       user?.role === "user"
-        ? sendPushNotification([expoPushToken], formNotification)
+        ? sendPushNotification(
+            [expoPushToken, ...adminExpoIDs],
+            formNotification
+          )
         : sendPushNotification([...allexpoPushToken], newsNotification);
       router.push("/event");
     } catch (error: any) {

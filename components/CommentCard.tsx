@@ -66,7 +66,7 @@ const CommentCard = ({
                   </Text>
                 )}
               </View>
-              {creator?.$id === user?.$id && (
+              {(creator?.$id === user?.$id || user?.role === "admin") && (
                 <TouchableOpacity
                   onPress={() => deleteDoc(itm, "comment")}
                   className=" "

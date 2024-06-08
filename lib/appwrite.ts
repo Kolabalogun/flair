@@ -199,12 +199,12 @@ export async function getTrendingNews() {
   }
 }
 
-export async function searchUsers(query: string) {
+export async function searchUsers(attribute: string, query: string) {
   try {
     const posts = await database.listDocuments(
       config.databaseId,
       config.userCollectionId,
-      [Query.search("accountId", query)]
+      [Query.search(attribute, query)]
     );
 
     if (!posts) throw new Error("Something went wrong");

@@ -74,9 +74,11 @@ const NewsDetails = () => {
     loading: loadingComments,
   } = useAppwrite(() => getAllComments(postId), postId);
 
+  const filteredComments = comments?.filter((comment: any) => comment?.creator);
+
   // Update postId when posts data changes
   useEffect(() => {
-    if (posts && posts.length > 0) {
+    if (posts && posts?.length > 0) {
       setPostId(posts[0].$id);
     }
   }, [posts]);
@@ -95,13 +97,8 @@ const NewsDetails = () => {
 
   const handleContactAdmin = async () => {
     const url = "https://wa.me/2347045074494";
-    const supported = await Linking.canOpenURL(url);
 
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert(`Don't know how to open this URL: ${url}`);
-    }
+    await Linking.openURL(url);
   };
 
   const submitComment = async () => {
@@ -227,7 +224,7 @@ const NewsDetails = () => {
     }
   };
 
-  if (loading || posts.length === 0) {
+  if (loading || posts?.length === 0) {
     return (
       <SafeAreaView className="bg-primary flex-1 ">
         <View>
@@ -366,49 +363,50 @@ const NewsDetails = () => {
         </View>
       </ScrollView>
 
-      <View className="bg-black-100 border-2 border-black-200 px-2 py-1 flex-row justify-between w-48  my-4 absolute bottom-3 self-center  rounded-full">
-        <View className="flex-row items-center gap-1 ">
-          <TouchableOpacity
-            disabled={loadingComments}
-            onPress={() => setModalVisible(true)}
-            className="items-center    bg-black-200 p-2 rounded-full   "
-          >
-            <Ionicons
-              name="chatbox-ellipses-outline"
-              size={22}
-              color="#C8C8C8"
-            />
-          </TouchableOpacity>
-          <Text className="text-sm font-pmedium text-gray-100">
-            {comments?.length}
-          </Text>
-        </View>
-        <View className="flex-row items-center gap-1 ">
-          <TouchableOpacity
-            onPress={submitLikes}
-            className="items-center  bg-black-200 p-2   rounded-full  "
-          >
-            {posts[0]?.likes?.includes(user?.$id) ? (
-              <AntDesign name="heart" size={20} color="red" />
-            ) : (
-              <AntDesign name="hearto" size={20} color="#C8C8C8" />
-            )}
-          </TouchableOpacity>
-          <Text className="text-sm font-pmedium text-gray-100">
-            {posts[0]?.likes?.length || 0}
-          </Text>
-        </View>
+      {user?.role !== "suspended" && (
+        <View className="bg-black-100 border-2 border-black-200 px-2 py-1 flex-row justify-between w-48  my-4 absolute bottom-3 self-center  rounded-full">
+          <View className="flex-row items-center gap-1 ">
+            <TouchableOpacity
+              disabled={loadingComments}
+              onPress={() => setModalVisible(true)}
+              className="items-center    bg-black-200 p-2 rounded-full   "
+            >
+              <Ionicons
+                name="chatbox-ellipses-outline"
+                size={22}
+                color="#C8C8C8"
+              />
+            </TouchableOpacity>
+            <Text className="text-sm font-pmedium text-gray-100">
+              {filteredComments?.length}
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-1 ">
+            <TouchableOpacity
+              onPress={submitLikes}
+              className="items-center  bg-black-200 p-2   rounded-full  "
+            >
+              {posts[0]?.likes?.includes(user?.$id) ? (
+                <AntDesign name="heart" size={20} color="red" />
+              ) : (
+                <AntDesign name="hearto" size={20} color="#C8C8C8" />
+              )}
+            </TouchableOpacity>
+            <Text className="text-sm font-pmedium text-gray-100">
+              {posts[0]?.likes?.length || 0}
+            </Text>
+          </View>
 
-        {posts[0]?.creator?.$id === user?.$id && (
-          <TouchableOpacity
-            onPress={() => deleteDocument(posts[0], "post")}
-            className="items-center  bg-black-200 p-2  rounded-full  "
-          >
-            <MaterialIcons name="delete" size={22} color="#C8C8C8" />
-          </TouchableOpacity>
-        )}
-      </View>
-
+          {(posts[0]?.creator?.$id === user?.$id || user?.role === "admin") && (
+            <TouchableOpacity
+              onPress={() => deleteDocument(posts[0], "post")}
+              className="items-center  bg-black-200 p-2  rounded-full  "
+            >
+              <MaterialIcons name="delete" size={22} color="#C8C8C8" />
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
       <Modal
         animationType="slide"
         visible={modalVisible}
@@ -418,7 +416,7 @@ const NewsDetails = () => {
       >
         <View className=" flex-1 h-full  bg-primary">
           <FlatList
-            data={comments}
+            data={filteredComments}
             keyExtractor={(item) => item.$id.toLocaleString()}
             renderItem={({ item }) => (
               <CommentCard {...item} deleteDoc={deleteDocument} itm={item} />

@@ -25,6 +25,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { icons, images } from "@/constants";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { sendPushNotification } from "@/lib/notification";
+import EmptyState from "@/components/EmptyState";
 
 const ProfileDetails = () => {
   const { query } = useLocalSearchParams();
@@ -35,11 +36,13 @@ const ProfileDetails = () => {
     data: users,
     refetch: usersRefresh,
     loading: usersLoading,
-  } = useAppwrite(() => searchUsers(searchQuery));
+  } = useAppwrite(() => searchUsers("accountId", searchQuery));
 
   const [userId, setUserId] = useState(null);
 
   const [user, setUser] = useState<any>(null);
+
+  console.log(user);
 
   // Update postId when posts data changes
   useEffect(() => {
@@ -52,8 +55,6 @@ const ProfileDetails = () => {
   useEffect(() => {
     usersRefresh();
   }, [query]);
-
-  //   console.log(user);
 
   const {
     data: posts,
@@ -93,6 +94,18 @@ const ProfileDetails = () => {
       updateRole = "user";
     } else if (user?.role === "admin" && query === "verified") {
       updateRole = "user";
+    } else if (user?.role === "admin" && query === "suspended") {
+      updateRole = "suspended";
+    } else if (user?.role === "suspended" && query === "suspended") {
+      updateRole = "user";
+    } else if (user?.role === "verified" && query === "suspended") {
+      updateRole = "suspended";
+    } else if (user?.role === "suspended" && query === "verified") {
+      updateRole = "verified";
+    } else if (user?.role === "suspended" && query === "admin") {
+      updateRole = "admin";
+    } else if (user?.role === "user" && query === "suspended") {
+      updateRole = "suspended";
     }
 
     const form = {
@@ -136,6 +149,41 @@ const ProfileDetails = () => {
       </SafeAreaView>
     );
   }
+
+  if (!user)
+    return (
+      <SafeAreaView className="bg-primary h-full">
+        <View className="w-full flex justify-center   mt-6 mb-12 px-4 ">
+          <View className="justify-between flex-row flex-1  items-center mb-10">
+            <TouchableOpacity onPress={() => router.back()} className="">
+              <Image
+                source={icons.all}
+                resizeMode="contain"
+                style={{ height: 24, width: 24 }}
+              />
+            </TouchableOpacity>
+            <View>
+              <Text className="text-gray-200 text-lg font-pmedium capitalize">
+                User Profile
+              </Text>
+              <View className="w-4 self-center   bg-secondary h-[2px]"></View>
+            </View>
+            <View className=" ">
+              <Image
+                source={images.logoSmall}
+                resizeMode="contain"
+                className="w-6 h-6"
+              />
+            </View>
+          </View>
+          <EmptyState
+            title="User Profile not found or user account is currently suspended"
+            subtitle="User not found"
+            event="event"
+          />
+        </View>
+      </SafeAreaView>
+    );
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -199,6 +247,10 @@ const ProfileDetails = () => {
                   </Text>
                 ) : user?.role === "admin" ? (
                   <MaterialIcons name="verified" size={14} color="#6834ce" />
+                ) : user?.role === "suspended" ? (
+                  <Text className="text-red-700 font-medium text-xs">
+                    Suspended
+                  </Text>
                 ) : (
                   <MaterialIcons name="verified" size={14} color="#FF9C01" />
                 )}
@@ -265,6 +317,27 @@ const ProfileDetails = () => {
                       value={
                         user?.role === "verified" || user?.role === "admin"
                       }
+                      disabled={loadingU}
+                    />
+                  </View>
+                </View>
+
+                <View className="justify-between py-1 border-b-gray-200 border-b-[1px]  flex-row items-center">
+                  <View>
+                    <Text className=" py-4 text-gray-100 flex-col  capitalize text-sm font-pmedium">
+                      Suspend User
+                    </Text>
+                  </View>
+
+                  <View>
+                    <Switch
+                      trackColor={{ false: "#767577", true: "#ff0101" }}
+                      thumbColor={
+                        user?.role === "suspended" ? "#ff0101" : "#f4f3f4"
+                      }
+                      ios_backgroundColor="#3e3e3e"
+                      onValueChange={() => updateUserInfo("suspended")}
+                      value={user?.role === "suspended"}
                       disabled={loadingU}
                     />
                   </View>

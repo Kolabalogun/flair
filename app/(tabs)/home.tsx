@@ -103,7 +103,7 @@ export default function HomeScreen() {
         expo_Id: expoPushToken,
       };
 
-      if (user?.expo_Id === null) {
+      if (user?.expo_Id === null || user?.expo_Id === "") {
         await updateVideoPost(form);
 
         Alert.alert("User Expo ID has been updated");

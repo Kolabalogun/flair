@@ -9,6 +9,7 @@ import { searchEvents, searchPosts } from "../../lib/appwrite";
 import SearchInput from "@/components/SearchInput";
 import EmptyState from "@/components/EmptyState";
 import NewsCard from "@/components/NewsCard";
+import EventCard from "@/components/EventCard";
 
 const Eventsearch = () => {
   const { query } = useLocalSearchParams();
@@ -49,7 +50,7 @@ const Eventsearch = () => {
       <FlatList
         data={posts}
         keyExtractor={(item) => item.$id}
-        renderItem={({ item }) => <NewsCard item={item} />}
+        renderItem={({ item }) => <EventCard item={item} />}
         ListHeaderComponent={() => (
           <>
             <View className="flex my-6 px-4">
