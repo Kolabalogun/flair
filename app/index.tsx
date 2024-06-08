@@ -1,4 +1,4 @@
-import { View, Text, Platform } from "react-native";
+import { View, Text, Platform, Alert } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,15 +8,7 @@ import { ActivityIndicator } from "react-native";
 
 import * as Notifications from "expo-notifications";
 
-import * as Device from "expo-device";
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+import { registerForPushNotificationsAsync } from "./landingPage";
 
 const Home = () => {
   const { isLoggedIn, isLoading, setExpoPushToken, expoPushToken, setUser } =
@@ -24,17 +16,35 @@ const Home = () => {
 
   const [loading, setLoading] = useState<boolean>(true);
 
+  const [tokenFromAsStorage, setTokenFromAsStorage] = useState<string | null>(
+    null
+  );
+
+  const storeData = async (value: string) => {
+    try {
+      setExpoPushToken(value);
+      await AsyncStorage.setItem("@expoID", value);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const [notification, setNotification] =
     useState<Notifications.Notification | null>(null);
   const notificationListener = useRef<Notifications.Subscription | null>(null);
   const responseListener = useRef<Notifications.Subscription | null>(null);
 
-  useEffect(() => {
-    registerForPushNotificationsAsync().then((token) =>
-      setExpoPushToken(token ?? "")
-    );
+  const [isSignedIn, setIsSignedIn] = useState<any>(null);
 
-    // This listener is fired whenever a notification is received while the app is foregrounded
+  const initializeNotifications = async () => {
+    const token = await registerForPushNotificationsAsync();
+    if (token) {
+      storeData(token);
+      setExpoPushToken(token);
+    } else {
+      Alert.alert("Network", "Network Error, Please reload the Application");
+    }
+
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
         setNotification(notification);
@@ -44,58 +54,21 @@ const Home = () => {
       Notifications.addNotificationResponseReceivedListener((response) => {
         console.log(response);
       });
+  };
 
-    return () => {
-      if (notificationListener.current) {
-        Notifications.removeNotificationSubscription(
-          notificationListener.current
-        );
-      }
-      if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
-      }
-    };
-  }, []);
-
-  async function registerForPushNotificationsAsync() {
-    let token;
-
-    if (Platform.OS === "android") {
-      await Notifications.setNotificationChannelAsync("default", {
-        name: "default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
-    }
-
-    if (Device.isDevice) {
-      const { status: existingStatus } =
-        await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== "granted") {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      if (finalStatus !== "granted") {
-        alert("Failed to get push token for push notification!");
-        return;
-      }
-      token = (await Notifications.getExpoPushTokenAsync()).data;
-    } else {
-      alert("Must use physical device for Push Notifications");
-    }
-
-    return token;
-  }
-
-  const [isSignedIn, setIsSignedIn] = useState<any>(null);
-
-  // Function to get user data from AsyncStorage
   const getData = async () => {
     setLoading(true);
     try {
       const value = await AsyncStorage.getItem("@IsUserSignedInn");
+      const token = await AsyncStorage.getItem("@expoID");
+
+      if (token) {
+        setExpoPushToken(token);
+        setTokenFromAsStorage(token);
+      } else {
+        setTokenFromAsStorage(null);
+        initializeNotifications();
+      }
 
       if (value) {
         setIsSignedIn(true);
@@ -114,18 +87,26 @@ const Home = () => {
     getData();
   }, []);
 
-  if (loading)
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-primary h-full">
-        <ActivityIndicator size={"large"} color={"#FF9C01"} />
+  useEffect(() => {
+    if (!tokenFromAsStorage) {
+      initializeNotifications();
+    }
 
-        <Text className="mt-5 text-white">{expoPushToken} </Text>
-      </SafeAreaView>
-    );
+    return () => {
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(
+          notificationListener.current
+        );
+      }
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+    };
+  }, [tokenFromAsStorage]);
 
-  if (isSignedIn) return <Redirect href={"/home"} />;
+  if (isSignedIn || !loading) return <Redirect href={"/home"} />;
 
-  if (!isSignedIn) return <Redirect href={"/landingPage"} />;
+  if (!isSignedIn || !loading) return <Redirect href={"/landingPage"} />;
 
   if (loading)
     return (

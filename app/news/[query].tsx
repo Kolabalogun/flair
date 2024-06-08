@@ -147,6 +147,13 @@ const NewsDetails = () => {
         ...updatedForm,
       });
       refetch("dontshow");
+
+      const newsNotification = {
+        title: "Trending",
+        body: posts[0]?.title,
+      };
+      !posts[0]?.trending &&
+        sendPushNotification([...allexpoPushToken], newsNotification);
     } catch (error) {
       console.log(error);
     }
@@ -208,7 +215,7 @@ const NewsDetails = () => {
     try {
       await sendPushNotification(allexpoPushToken, {
         title: posts[0]?.title,
-        body: posts[0].desc,
+        body: `${posts[0].desc.substring(0, 100)}...`,
       });
     } catch (error) {
       Alert.alert(

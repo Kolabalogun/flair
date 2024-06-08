@@ -38,7 +38,8 @@ const Login = () => {
     try {
       const res = await checkIfUserIsInDB(email.trim());
 
-      if (res.length === 0) return Alert.alert("Error", "Invalid Credentials");
+      if (res.length === 0)
+        return Alert.alert("Error", "Invalid Email or Password");
 
       await signIn(email.trim(), password.trim());
 

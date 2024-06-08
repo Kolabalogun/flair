@@ -126,9 +126,14 @@ const Create = () => {
         title: "Flair",
         body: "Your Post have been Uploaded😊",
       };
+
+      const newsNotification = {
+        title: title,
+        body: `${desc.substring(0, 100)}...`,
+      };
       user?.role === "user"
         ? sendPushNotification([expoPushToken], formNotification)
-        : sendPushNotification([...allexpoPushToken], formNotification);
+        : sendPushNotification([...allexpoPushToken], newsNotification);
       router.push("/home");
     } catch (error: any) {
       Alert.alert("Error", "Unable to upload post");
@@ -171,9 +176,13 @@ const Create = () => {
         body: "Your Event have been Uploaded😊",
       };
 
+      const newsNotification = {
+        title: title,
+        body: `${desc.substring(0, 100)}...`,
+      };
       user?.role === "user"
         ? sendPushNotification([expoPushToken], formNotification)
-        : sendPushNotification([...allexpoPushToken], formNotification);
+        : sendPushNotification([...allexpoPushToken], newsNotification);
       router.push("/event");
     } catch (error: any) {
       Alert.alert("Error", "Unable to upload event!");

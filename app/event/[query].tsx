@@ -36,6 +36,7 @@ import CustomButton from "@/components/CustomButton";
 import ModalComponent from "@/components/Modal";
 import FormField from "@/components/FormField";
 import { Linking } from "react-native";
+import { sendPushNotification } from "@/lib/notification";
 
 export interface Comment {
   $id: string;
@@ -51,7 +52,7 @@ interface Author {
 
 const EventDetails = () => {
   const { query } = useLocalSearchParams();
-  const { user } = useGlobalContext();
+  const { user, allexpoPushToken } = useGlobalContext();
   const [modalVisible, setModalVisible] = useState(false);
 
   const [commentLoader, setCommentLoader] = useState(false);
@@ -137,8 +138,34 @@ const EventDetails = () => {
         Alert.alert("Success", "Event successfully set as Trending");
 
       allTrendingPostRefetch();
+
+      const newsNotification = {
+        title: "Trending",
+        body: posts[0]?.title,
+      };
+      !posts[0]?.trending &&
+        sendPushNotification([...allexpoPushToken], newsNotification);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const [pushNLoading, setPushNLoading] = useState(false);
+  const sendNotificationToAllUsers = async () => {
+    setPushNLoading(true);
+
+    try {
+      await sendPushNotification(allexpoPushToken, {
+        title: posts[0]?.title,
+        body: `${posts[0].desc.substring(0, 100)}...`,
+      });
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        "An error occurred while sending push notifications"
+      );
+    } finally {
+      setPushNLoading(false);
     }
   };
 
@@ -482,8 +509,12 @@ const EventDetails = () => {
                 </Text>
               </View>
 
-              <TouchableOpacity>
-                <Entypo name="bell" size={24} color="#c8c8c8" />
+              <TouchableOpacity onPress={sendNotificationToAllUsers}>
+                {pushNLoading ? (
+                  <ActivityIndicator color={"#FF9C01"} />
+                ) : (
+                  <Entypo name="bell" size={24} color="#c8c8c8" />
+                )}
               </TouchableOpacity>
             </View>
           )}

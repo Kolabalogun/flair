@@ -4,9 +4,9 @@ import Trending from "@/components/Trending";
 
 import { icons, images } from "@/constants";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import { getAllPosts } from "@/lib/appwrite";
+import { getAllPosts, updateVideoPost } from "@/lib/appwrite";
 import useAppwrite from "@/lib/useAppwrite";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Text,
   View,
@@ -15,6 +15,7 @@ import {
   Image,
   RefreshControl,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -52,7 +53,7 @@ const topics = [
 ];
 
 export default function HomeScreen() {
-  const { user } = useGlobalContext();
+  const { user, expoPushToken } = useGlobalContext();
 
   const [activeTab, setActiveTab] = useState(topics[0]);
 
@@ -93,6 +94,24 @@ export default function HomeScreen() {
     await refetch();
     setRefreshing(false);
   };
+
+  useEffect(() => {
+    const checkIfUserHasExpoID = async () => {
+      const form = {
+        collectionId: user?.$collectionId,
+        documentId: user?.$id,
+        expo_Id: expoPushToken,
+      };
+
+      if (user?.expo_Id === null) {
+        await updateVideoPost(form);
+
+        Alert.alert("User Expo ID has been updated");
+      }
+    };
+
+    checkIfUserHasExpoID();
+  }, []);
 
   if (loading) {
     return (

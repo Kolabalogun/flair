@@ -29,6 +29,7 @@ export async function sendPushNotification(
       successfulTokens.push(token);
     } else {
       failedTokens.push(token);
+      console.log(responseData);
     }
   }
 

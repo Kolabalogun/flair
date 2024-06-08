@@ -61,11 +61,16 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         const filteredExpoId = users
           .filter((user: any) => user.expo_Id)
           .map((user: any) => user.expo_Id);
-        setAllExpoPushToken(filteredExpoId);
+
+        // Remove duplicates using a Set and convert back to array
+        const uniqueExpoIds: string[] = Array.from(new Set(filteredExpoId));
+        setAllExpoPushToken(uniqueExpoIds);
       }
     };
     getExpoIDs();
-  }, [users]);
+  }, [users, loading]);
+
+  
 
   useEffect(() => {
     getCurrentUser()

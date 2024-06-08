@@ -24,6 +24,7 @@ import { RefreshControl } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { icons, images } from "@/constants";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import { sendPushNotification } from "@/lib/notification";
 
 const ProfileDetails = () => {
   const { query } = useLocalSearchParams();
@@ -37,8 +38,6 @@ const ProfileDetails = () => {
   } = useAppwrite(() => searchUsers(searchQuery));
 
   const [userId, setUserId] = useState(null);
-
-  console.log(seniorMan?.role);
 
   const [user, setUser] = useState<any>(null);
 
@@ -104,8 +103,14 @@ const ProfileDetails = () => {
     setLoadingU(true);
     try {
       await updateVideoPost(form);
-
       Alert.alert("Success", `${user?.username} status updated`);
+
+      const message = {
+        title: "Flair",
+        body: `Your status has been updated to ${updateRole}`,
+      };
+
+      await sendPushNotification([user.expo_Id], message);
 
       usersRefresh("dontshow");
 
