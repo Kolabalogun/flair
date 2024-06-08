@@ -368,7 +368,7 @@ export async function getFilePreview(fileId: string, type: string) {
         2000,
         2000,
         ImageGravity.Top,
-        100
+        80
       );
     } else {
       throw new Error("Invalid file type");

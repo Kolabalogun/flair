@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "338830680439",
+    "project_id": "flair-636c3",
+    "storage_bucket": "flair-636c3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:338830680439:android:84937049015f83ddcec172",
+        "android_client_info": {
+          "package_name": "com.ibrahimdevv.flair"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZzY5CAdVMwBGb3Ymc6EcmCKLlDaJ_GjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

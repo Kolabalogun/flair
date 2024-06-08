@@ -13,8 +13,8 @@ import { images } from "@/constants";
 import CustomButton from "@/components/CustomButton";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import * as Notifications from "expo-notifications";
-// import Constants from "expo-constants";
-import * as Device from "expo-device";
+import Constants from "expo-constants";
+// import * as Device from "expo-device";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 Notifications.setNotificationHandler({
@@ -102,7 +102,7 @@ const Home = () => {
       });
     }
 
-    if (Device.isDevice) {
+    if (Constants.isDevice) {
       const { status: existingStatus } =
         await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;

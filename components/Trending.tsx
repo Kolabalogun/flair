@@ -62,6 +62,7 @@ const Trending = ({ posts }: { posts: any }) => {
     <FlatList
       data={posts}
       horizontal
+      showsHorizontalScrollIndicator={false}
       keyExtractor={(item, idx) => idx.toLocaleString()}
       renderItem={({ item }) => <TrendingItem item={item} />}
     />

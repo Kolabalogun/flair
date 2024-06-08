@@ -15,6 +15,7 @@ const tabs = [
   { name: "event", icon: icons.bookmark },
   { name: "create", icon: icons.plus },
   { name: "profile", icon: icons.profile },
+  { name: "ll", icon: icons.profile },
 ];
 
 const TabIcon = ({ icon, color, name, focused }: TabIconType) => {
