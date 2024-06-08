@@ -93,12 +93,12 @@ const Register = () => {
           }}
         >
           <Image
-            source={images.logo}
+            source={images.logoSmall}
             resizeMode="contain"
-            className="w-[115px] h-[34px]"
+            className="w-[45px] h-[45px]"
           />
 
-          <Text className="text-2xl font-semibold text-white mt-10 font-psemibold">
+          <Text className="text-2xl font-semibold text-white mt-6 font-psemibold">
             Sign Up to Flair
           </Text>
 

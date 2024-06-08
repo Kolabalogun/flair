@@ -119,7 +119,6 @@ const Home = () => {
     setLoading(true);
     try {
       const value = await AsyncStorage.getItem("@IsUserSignedInn");
-      console.log(value);
 
       if (value) {
         setIsSignedIn(true);
@@ -146,8 +145,8 @@ const Home = () => {
       <ScrollView contentContainerStyle={{ height: "100%" }}>
         <View className={"w-full justify-center items-center h-full px-4 "}>
           <Image
-            source={images.logo}
-            className="w-[130px] h-[84px] "
+            source={images.logoSmall}
+            className="w-[50px] h-[50px] "
             resizeMode="contain"
           />
 

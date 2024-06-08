@@ -42,8 +42,6 @@ const ProfileDetails = () => {
 
   const [user, setUser] = useState<any>(null);
 
-  console.log(user);
-
   // Update postId when posts data changes
   useEffect(() => {
     if (users && users.length > 0) {
