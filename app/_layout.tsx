@@ -40,6 +40,7 @@ export default function RootLayout() {
         <Stack.Screen name="landingPage" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="all/[query]" />
         <Stack.Screen name="news/[query]" />
         <Stack.Screen name="event/[query]" />
         <Stack.Screen name="search/[query]" />

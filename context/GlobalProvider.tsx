@@ -23,6 +23,7 @@ interface GlobalContextType {
   updateUser: boolean;
   setUpdateUser: React.Dispatch<React.SetStateAction<boolean>>;
   storeData: (e: string) => void;
+  checkCurrentUser: () => void;
 }
 
 // Create the context with an undefined default value
@@ -70,26 +71,29 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     getExpoIDs();
   }, [users, loading]);
 
-  
+  // Define the function to check the current user
+  const checkCurrentUser = async () => {
+    setIsLoading(true);
+    try {
+      const user = await getCurrentUser();
+      if (user) {
+        setIsLoggedIn(true);
+        setUser(user);
+        storeData(JSON.stringify(user));
+      } else {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  // Call the function in useEffect
   useEffect(() => {
-    getCurrentUser()
-      .then((user) => {
-        if (user) {
-          setIsLoggedIn(true);
-          setUser(user);
-          storeData(JSON.stringify(user));
-        } else {
-          setIsLoggedIn(false);
-          setUser(null);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    checkCurrentUser();
   }, [updateUser]);
 
   const storeData = async (value: string | null) => {
@@ -118,6 +122,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         updateUser,
         setUpdateUser,
         storeData,
+        checkCurrentUser,
       }}
     >
       {children}

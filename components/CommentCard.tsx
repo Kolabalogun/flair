@@ -13,6 +13,7 @@ const CommentCard = ({
   itm,
   type,
   bookticket,
+  ...prop
 }: any) => {
   const { user } = useGlobalContext();
 

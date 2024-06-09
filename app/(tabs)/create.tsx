@@ -163,16 +163,21 @@ const Create = () => {
         body: "Your Post have been Uploaded😊",
       };
 
+      const adminNotification = {
+        title: `News Post from ${user?.username}`,
+        body: { title },
+      };
+
       const newsNotification = {
         title: title,
         body: `${desc.substring(0, 100)}...`,
       };
-      user?.role === "user"
-        ? sendPushNotification(
-            [expoPushToken, ...adminExpoIDs],
-            formNotification
-          )
-        : sendPushNotification([...allexpoPushToken], newsNotification);
+
+      if (user?.role === "user") {
+        sendPushNotification([expoPushToken], formNotification);
+        sendPushNotification([...adminExpoIDs], adminNotification);
+      } else sendPushNotification([...allexpoPushToken], newsNotification);
+
       router.push("/home");
     } catch (error: any) {
       Alert.alert("Error", "Unable to upload post");
@@ -221,17 +226,20 @@ const Create = () => {
         title: "Flair",
         body: "Your Event have been Uploaded😊",
       };
+      const adminNotification = {
+        title: `New Event Post from ${user?.username}`,
+        body: { title },
+      };
 
       const newsNotification = {
         title: title,
         body: `${desc.substring(0, 100)}...`,
       };
-      user?.role === "user"
-        ? sendPushNotification(
-            [expoPushToken, ...adminExpoIDs],
-            formNotification
-          )
-        : sendPushNotification([...allexpoPushToken], newsNotification);
+
+      if (user?.role === "user") {
+        sendPushNotification([expoPushToken], formNotification);
+        sendPushNotification([...adminExpoIDs], adminNotification);
+      } else sendPushNotification([...allexpoPushToken], newsNotification);
       router.push("/event");
     } catch (error: any) {
       Alert.alert("Error", "Unable to upload event!");

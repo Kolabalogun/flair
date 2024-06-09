@@ -1,7 +1,7 @@
 import { Alert } from "react-native";
 import { useEffect, useState } from "react";
 
-const useAppwrite = (fn: () => void, id?: string | null) => {
+const useAppwrite = (fn: () => void, id?: string | number | null) => {
   const [data, setData] = useState<any>([]);
   const [loading, setLoading] = useState(true);
 

@@ -135,12 +135,14 @@ export async function getCurrentUser() {
   }
 }
 
-export async function getAllPosts() {
+export async function getAllPosts(limit?: number) {
   try {
     const posts = await database.listDocuments(
       config.databaseId,
       config.newsCollectionId,
-      [Query.orderDesc("$createdAt")]
+      limit
+        ? [Query.orderDesc("$createdAt"), Query.limit(limit)]
+        : [Query.orderDesc("$createdAt")]
     );
 
     return posts.documents;
@@ -150,12 +152,14 @@ export async function getAllPosts() {
   }
 }
 
-export async function getAllUsers() {
+export async function getAllUsers(limit?: number) {
   try {
     const posts = await database.listDocuments(
       config.databaseId,
       config.userCollectionId,
-      [Query.orderDesc("$createdAt")]
+      limit
+        ? [Query.orderDesc("$createdAt"), Query.limit(limit)]
+        : [Query.orderDesc("$createdAt")]
     );
 
     return posts.documents;
@@ -165,12 +169,14 @@ export async function getAllUsers() {
   }
 }
 
-export async function getAllEvents() {
+export async function getAllEvents(limit?: number) {
   try {
     const posts = await database.listDocuments(
       config.databaseId,
       config.eventsCollectionId,
-      [Query.orderDesc("$createdAt")]
+      limit
+        ? [Query.orderDesc("$createdAt"), Query.limit(limit)]
+        : [Query.orderDesc("$createdAt")]
     );
 
     return posts.documents;

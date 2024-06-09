@@ -28,16 +28,30 @@ export default function Event() {
 
   const { data: events, refetch, loading } = useAppwrite(getAllEvents);
 
+  const removeSuspendedUsersPosts = events?.filter(
+    (event: any) => event?.creator?.role !== "suspended"
+  );
+
   const eventss =
-    events.length > 0
-      ? [events[0], ...events.slice(5, events.length), ...events.slice(1, 4)]
+    removeSuspendedUsersPosts.length > 0
+      ? [
+          removeSuspendedUsersPosts[0],
+          ...removeSuspendedUsersPosts.slice(
+            5,
+            removeSuspendedUsersPosts.length
+          ),
+          ...removeSuspendedUsersPosts.slice(1, 4),
+        ]
       : [];
 
   const trendingEvent =
-    events?.filter((event: CreateNewsEventFormType) => event.trending).length >
-    0
-      ? events?.filter((event: CreateNewsEventFormType) => event.trending)
-      : events;
+    removeSuspendedUsersPosts?.filter(
+      (event: CreateNewsEventFormType) => event.trending
+    ).length > 0
+      ? removeSuspendedUsersPosts?.filter(
+          (event: CreateNewsEventFormType) => event.trending
+        )
+      : removeSuspendedUsersPosts;
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -161,7 +175,9 @@ export default function Event() {
                   Upcoming Event
                 </Text>
 
-                <UpcomingEvent events={events.slice(0, 5) ?? []} />
+                <UpcomingEvent
+                  events={removeSuspendedUsersPosts?.slice(0, 5) ?? []}
+                />
               </View>
             )}
 

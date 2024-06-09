@@ -53,45 +53,56 @@ const topics = [
 ];
 
 export default function HomeScreen() {
-  const { user, expoPushToken } = useGlobalContext();
+  const { user, expoPushToken, checkCurrentUser } = useGlobalContext();
 
   const [activeTab, setActiveTab] = useState(topics[0]);
 
   const { data: posts, refetch, loading } = useAppwrite(getAllPosts);
 
+  const removeSuspendedUsersPosts = posts?.filter(
+    (post: any) => post?.creator?.role !== "suspended"
+  );
+
   const filteredPosts = useMemo(() => {
-    if (!posts) return [];
+    if (!removeSuspendedUsersPosts) return [];
 
     switch (activeTab?.title) {
       case "Events":
-        return posts.filter((post: any) => post.type.toLowerCase() === "event");
+        return removeSuspendedUsersPosts.filter(
+          (post: any) => post.type.toLowerCase() === "event"
+        );
       case "Education":
-        return posts.filter(
+        return removeSuspendedUsersPosts.filter(
           (post: any) => post.type.toLowerCase() === "education"
         );
       case "Sports":
-        return posts.filter(
+        return removeSuspendedUsersPosts.filter(
           (post: any) => post.type.toLowerCase() === "sports"
         );
       case "Others":
-        return posts.filter(
+        return removeSuspendedUsersPosts.filter(
           (post: any) => post.type.toLowerCase() === "others"
         );
       default:
-        return posts;
+        return removeSuspendedUsersPosts;
     }
-  }, [posts, activeTab]);
+  }, [removeSuspendedUsersPosts, activeTab]);
 
   const trendingpost =
-    posts?.filter((post: CreateNewsFormType) => post.trending).length > 0
-      ? posts?.filter((post: CreateNewsFormType) => post.trending)
-      : posts;
+    removeSuspendedUsersPosts?.filter(
+      (post: CreateNewsFormType) => post.trending
+    ).length > 0
+      ? removeSuspendedUsersPosts?.filter(
+          (post: CreateNewsFormType) => post.trending
+        )
+      : removeSuspendedUsersPosts;
 
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
     setRefreshing(true);
     await refetch();
+    checkCurrentUser();
     setRefreshing(false);
   };
 
@@ -106,11 +117,12 @@ export default function HomeScreen() {
       if (user?.expo_Id === null || user?.expo_Id === "") {
         await updateVideoPost(form);
 
-        Alert.alert("User Expo ID has been updated");
+        // Alert.alert("User Expo ID has been updated");
       }
     };
 
     checkIfUserHasExpoID();
+    checkCurrentUser();
   }, []);
 
   if (loading) {

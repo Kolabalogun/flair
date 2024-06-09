@@ -21,7 +21,7 @@ const EmptyState = ({
         className="w-[270px] h-[216px]"
       />
 
-      <Text className="text-sm text-center font-pmedium text-gray-100">
+      <Text className="text-sm text-center capitalize font-pmedium text-gray-100">
         {title}
       </Text>
       <Text className="text-xl text-center font-psemibold text-white mt-2">
