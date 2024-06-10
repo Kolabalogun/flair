@@ -9,6 +9,8 @@ import { ActivityIndicator } from "react-native";
 import * as Notifications from "expo-notifications";
 
 import { registerForPushNotificationsAsync } from "./landingPage";
+import useAppwrite from "@/lib/useAppwrite";
+import { getAppStatus } from "@/lib/appwrite";
 
 const Home = () => {
   const { setExpoPushToken, setUser } = useGlobalContext();
@@ -103,16 +105,24 @@ const Home = () => {
     };
   }, [tokenFromAsStorage]);
 
-  if (isSignedIn || !loading) return <Redirect href={"/home"} />;
+  const {
+    data: docs,
 
-  if (!isSignedIn || !loading) return <Redirect href={"/landingPage"} />;
+    loading: statusLoading,
+  } = useAppwrite(getAppStatus);
 
-  if (loading)
+  console.log(!docs[0]?.status);
+
+  if (loading || statusLoading || !docs[0]?.status)
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-primary h-full">
         <ActivityIndicator size={"large"} color={"#FF9C01"} />
       </SafeAreaView>
     );
+
+  if (isSignedIn || !loading) return <Redirect href={"/home"} />;
+
+  if (!isSignedIn || !loading) return <Redirect href={"/landingPage"} />;
 
   return (
     <SafeAreaView className="flex-1 items-center justify-center bg-primary h-full">

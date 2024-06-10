@@ -280,7 +280,7 @@ const EventDetails = () => {
       });
       if (type === "post") {
         Alert.alert("Flair", "Event deleted successfully");
-        router.replace("/home");
+        router.back();
         refetch();
       } else {
         Alert.alert("Flair", "Document deleted successfully");

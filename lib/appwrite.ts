@@ -22,6 +22,7 @@ export const config = {
   newsCollectionId: "665f0eaf002eb8653dac",
   commentsCollectionId: "6660235e002445f534a4",
   eventsCollectionId: "66610230000e4247233f",
+  statusCollectionId: "6666c69f00375daf2e8a",
   eventcommentsCollectionId: "66618576002aa6d75458",
   eventTicketCollectionId: "666195eb00332848e84f",
   storageId: "665f1b8c00331df6f9e0",
@@ -177,6 +178,21 @@ export async function getAllEvents(limit?: number) {
       limit
         ? [Query.orderDesc("$createdAt"), Query.limit(limit)]
         : [Query.orderDesc("$createdAt")]
+    );
+
+    return posts.documents;
+  } catch (error: any) {
+    console.log(error);
+    throw new Error(error);
+  }
+}
+
+export async function getAppStatus() {
+  try {
+    const posts = await database.listDocuments(
+      config.databaseId,
+      config.statusCollectionId,
+      [Query.orderDesc("$createdAt"), Query.limit(1)]
     );
 
     return posts.documents;
