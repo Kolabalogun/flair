@@ -85,10 +85,6 @@ const Home = () => {
   };
 
   useEffect(() => {
-    getData();
-  }, []);
-
-  useEffect(() => {
     if (!tokenFromAsStorage) {
       initializeNotifications();
     }
@@ -105,24 +101,38 @@ const Home = () => {
     };
   }, [tokenFromAsStorage]);
 
-  const {
-    data: docs,
+  const [appStatus, setAppStatus] = useState(null);
 
-    loading: statusLoading,
-  } = useAppwrite(getAppStatus);
+  const getAppStatuss = async () => {
+    try {
+      const res = await getAppStatus();
 
-  console.log(!docs[0]?.status);
+      if (res && res.length > 0) {
+        setAppStatus(res[0]?.status);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  if (loading || statusLoading || !docs[0]?.status)
+  useEffect(() => {
+    getAppStatuss();
+
+    if (appStatus !== null) {
+      getData();
+    }
+  }, [appStatus]);
+
+  if (loading || !appStatus)
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-primary h-full">
         <ActivityIndicator size={"large"} color={"#FF9C01"} />
       </SafeAreaView>
     );
 
-  if (isSignedIn || !loading) return <Redirect href={"/home"} />;
+  if (isSignedIn) return <Redirect href={"/home"} />;
 
-  if (!isSignedIn || !loading) return <Redirect href={"/landingPage"} />;
+  if (!isSignedIn) return <Redirect href={"/landingPage"} />;
 
   return (
     <SafeAreaView className="flex-1 items-center justify-center bg-primary h-full">
