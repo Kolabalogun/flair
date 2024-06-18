@@ -159,7 +159,7 @@ const Create = () => {
       Alert.alert("Success", "Post uploaded successfully");
 
       const formNotification = {
-        title: "Flair",
+        title: "Newswave",
         body: "Your Post have been Uploaded😊",
       };
 
@@ -223,7 +223,7 @@ const Create = () => {
       Alert.alert("Success", "Event uploaded successfully");
 
       const formNotification = {
-        title: "Flair",
+        title: "Newswave",
         body: "Your Event have been Uploaded😊",
       };
       const adminNotification = {

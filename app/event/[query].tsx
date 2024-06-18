@@ -279,11 +279,11 @@ const EventDetails = () => {
         documentId: form.$id,
       });
       if (type === "post") {
-        Alert.alert("Flair", "Event deleted successfully");
+        Alert.alert("Newswave", "Event deleted successfully");
         router.back();
         refetch();
       } else {
-        Alert.alert("Flair", "Document deleted successfully");
+        Alert.alert("Newswave", "Document deleted successfully");
         commentRefetch();
         allTicketRefetch();
         ticketRefetch();
@@ -627,7 +627,7 @@ const EventDetails = () => {
 
             <Text className="text-xs text-gray-100  p-4 font-pregular">
               {
-                "(Please note, if it's a paid event, online payment through the Flair App is currently unavailable. Booking a ticket here will guarantee you a seat at the event, but you will need to pay the entry fee upon arrival.)"
+                "(Please note, if it's a paid event, online payment through the Newswave App is currently unavailable. Booking a ticket here will guarantee you a seat at the event, but you will need to pay the entry fee upon arrival.)"
               }
             </Text>
 

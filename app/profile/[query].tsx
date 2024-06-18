@@ -117,7 +117,7 @@ const ProfileDetails = () => {
       Alert.alert("Success", `${user?.username} status updated`);
 
       const message = {
-        title: "Flair",
+        title: "Newswave",
         body: `Your status has been updated to ${updateRole}`,
       };
 

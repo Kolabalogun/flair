@@ -74,7 +74,7 @@ const Login = () => {
           />
 
           <Text className="text-2xl font-semibold text-white mt-6 font-psemibold">
-            Log in to Flair
+            Log in to Newswave
           </Text>
 
           <FormField

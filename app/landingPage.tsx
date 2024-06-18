@@ -159,7 +159,7 @@ const Home = () => {
           <View className="relative mt-5">
             <Text className="text-3xl text-white font-bold text-center">
               Explore Boundless{"\n"}
-              Horizons with <Text className="text-secondary-200">Flair</Text>
+              Horizons with <Text className="text-secondary-200">Newswave</Text>
             </Text>
 
             <Image
@@ -170,7 +170,8 @@ const Home = () => {
           </View>
 
           <Text className="text-sm font-pregular text-gray-100 mt-7 text-center">
-            Discover News & Events: A Journey of Endless Exploration with Flair!
+            Discover News & Events: A Journey of Endless Exploration with
+            Newswave!
           </Text>
 
           <CustomButton

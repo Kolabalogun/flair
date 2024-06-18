@@ -80,8 +80,6 @@ const Register = () => {
   const { setUser, setIsLoggedIn, expoPushToken, storeData, setExpoPushToken } =
     useGlobalContext();
 
-  console.log(expoPushToken);
-
   const [notification, setNotification] =
     useState<Notifications.Notification | null>(null);
   const notificationListener = useRef<Notifications.Subscription | null>(null);
@@ -142,7 +140,7 @@ const Register = () => {
       return;
     }
     if (username.length > 10) {
-      Alert.alert("Error", "Username must be more than 10 characters");
+      Alert.alert("Error", "Username must be less than 10 characters");
       return;
     }
 
@@ -193,7 +191,7 @@ const Register = () => {
           />
 
           <Text className="text-2xl font-semibold text-white mt-6 font-psemibold">
-            Sign Up to Flair
+            Sign Up to Newswave
           </Text>
 
           <FormField

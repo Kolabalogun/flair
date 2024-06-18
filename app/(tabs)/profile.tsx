@@ -65,7 +65,7 @@ const Profile = () => {
       setUser(null);
       setIsLoggedIn(false);
       storeData(null);
-      Alert.alert("Flair", "User logged out successfully");
+      Alert.alert("Newswave", "User logged out successfully");
       router.replace("/login");
     } catch (e) {
       console.log(e);

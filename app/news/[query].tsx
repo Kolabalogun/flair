@@ -192,11 +192,11 @@ const NewsDetails = () => {
         documentId: form.$id,
       });
       if (type === "post") {
-        Alert.alert("Flair", "Post deleted successfully");
+        Alert.alert("Newswave", "Post deleted successfully");
         router.back();
         refetch();
       } else {
-        Alert.alert("Flair", "Comment deleted successfully");
+        Alert.alert("Newswave", "Comment deleted successfully");
         commentRefetch();
       }
     } catch (error) {

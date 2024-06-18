@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Flair",
+    "name": "Newswave",
     "slug": "flair",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/iconnn.png",
+    "icon": "./assets/images/iconn.png",
     "scheme": "flair",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -24,7 +24,7 @@
       "googleServicesFile": "./google-services.json",
       "permissions": ["RECEIVE_BOOT_COMPLETED", "NOTIFICATIONS"],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/iconnn.png",
+        "foregroundImage": "./assets/images/iconn.png",
         "backgroundColor": "#161622"
       },
       "package": "com.ibrahimdevv.flair"
